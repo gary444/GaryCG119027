@@ -32,10 +32,19 @@ class ApplicationSolar : public Application {
   void initializeGeometry();
   void updateView();
   void upload_planet_transforms(planet planetToDisplay) const;
+    void upload_stars() const;
 
-  // cpu representation of model
+  // cpu representation of models
   model_object planet_object;
-
+  model_object star_object;
+    
+    
+    
+    float starVertexBuffer[24] = {2.0f, 2.0f, 10.0f, 0.0f, 0.0f, 0.0f,
+                                  -2.0f, -2.0f, 10.0f, 1.0f, 0.0f, 0.0f,
+                                  2.0f, -2.0f, 10.0f, 0.0f, 1.0f, 0.0f,
+                                  -2.0f, 2.0f, 10.0f, 0.0f, 0.0f, 1.0f};
+    int starIndexArray[4] = {0, 1, 2, 3};
 
   //planet struct: {size, rotation speed, dist to origin, orbitSkew, hasMoonAtIndex, isMoon}
   float EARTH_SIZE = 0.2f;
@@ -44,8 +53,6 @@ class ApplicationSolar : public Application {
 
   //planet attributes originally copied from https://nssdc.gsfc.nasa.gov/planetary/factsheet/planet_table_ratio.html
   // then adapted for aesthetic purposes
-
-
   //planet struct initialisation: {size, rotation speed, dist to origin, orbitSkew, hasMoonAtIndex, isMoon}
   planet planets[10] = { {EARTH_SIZE * 10.0f,  1.0f,                0.0f,                  0.0f,   -1, false},//sun
 					   { EARTH_SIZE * 1.383f,  EARTH_SPEED * 5.8f,  EARTH_ORBIT * 0.387f,  0.2f,   -1, false },//mercury
