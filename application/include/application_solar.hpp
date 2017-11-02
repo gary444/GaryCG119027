@@ -5,6 +5,8 @@
 #include "model.hpp"
 #include "structs.hpp"
 
+
+
 // gpu representation of model
 class ApplicationSolar : public Application {
  public:
@@ -32,19 +34,23 @@ class ApplicationSolar : public Application {
   void initializeGeometry();
   void updateView();
   void upload_planet_transforms(planet planetToDisplay) const;
-    void upload_stars() const;
+  void upload_stars() const;
 
   // cpu representation of models
   model_object planet_object;
   model_object star_object;
+//    
+//    star starVertexBuffer[4] = {{starPos{2.0, 5.0, 1.0}, starCol{1.0, 1.0, 1.0}},
+//                                {starPos{2.0, 5.0, 1.0}, starCol{1.0, 1.0, 1.0}},
+//                                {starPos{2.0, 5.0, 1.0}, starCol{1.0, 1.0, 1.0}},
+//                                    { starPos{2.0, 5.0, 1.0}, starCol{1.0, 1.0, 1.0}};
     
     
-    
-    float starVertexBuffer[24] = {2.0f, 2.0f, 10.0f, 0.0f, 0.0f, 0.0f,
-                                  -2.0f, -2.0f, 10.0f, 1.0f, 0.0f, 0.0f,
-                                  2.0f, -2.0f, 10.0f, 0.0f, 1.0f, 0.0f,
-                                  -2.0f, 2.0f, 10.0f, 0.0f, 0.0f, 1.0f};
-    int starIndexArray[4] = {0, 1, 2, 3};
+    float starVertexBuffer[24] = {0.0f, 0.0f, 20.0f, 1.0f, 1.0f, 1.0f,
+                                  -14.0f, -12.0f, 20.0f, 1.0f, 1.0f, 1.0f,
+                                  12.0f, -14.0f, 20.0f, 1.0f, 1.0f, 1.0f,
+                                  -12.0f, 14.0f, 20.0f, 1.0f, 1.0f, 1.0f};
+    //int starIndexArray[4] = {0, 1, 2, 3};
 
   //planet struct: {size, rotation speed, dist to origin, orbitSkew, hasMoonAtIndex, isMoon}
   float EARTH_SIZE = 0.2f;
@@ -54,7 +60,7 @@ class ApplicationSolar : public Application {
   //planet attributes originally copied from https://nssdc.gsfc.nasa.gov/planetary/factsheet/planet_table_ratio.html
   // then adapted for aesthetic purposes
   //planet struct initialisation: {size, rotation speed, dist to origin, orbitSkew, hasMoonAtIndex, isMoon}
-  planet planets[10] = { {EARTH_SIZE * 10.0f,  1.0f,                0.0f,                  0.0f,   -1, false},//sun
+  planet planets[10] = { {EARTH_SIZE * 1.0f,  1.0f,                0.0f,                  0.0f,   -1, false},//sun
 					   { EARTH_SIZE * 1.383f,  EARTH_SPEED * 5.8f,  EARTH_ORBIT * 0.387f,  0.2f,   -1, false },//mercury
 					   { EARTH_SIZE * 0.949f,  EARTH_SPEED * 2.4,   EARTH_ORBIT * 0.723f, -0.2f,   -1, false },//venus
 					   { EARTH_SIZE,           EARTH_SPEED,         EARTH_ORBIT,           0.0f,    4, false },//earth
