@@ -44,14 +44,11 @@ private:
     
     
     std::vector< float > starBuffer;
-    //float starElementArray[500];
     
     
     // cpu representation of models
     model_object planet_object;
     model_object star_object;
-
-
 
     //relative earth values
   float EARTH_SIZE = 0.15f;

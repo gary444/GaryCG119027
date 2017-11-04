@@ -17,7 +17,6 @@ out vec3 pass_Colour;
 
 void main(void)
 {
-    //gl_PointSize = 5.0;
     
     gl_Position = (ProjectionMatrix  * ViewMatrix ) * vec4(in_Position, 1.0f);
 
