@@ -24,7 +24,7 @@ model planet_model{};
 
 ApplicationSolar::ApplicationSolar(std::string const& resource_path)
  :Application{resource_path}
-, planet_object{}, star_object{}//, star_model{}
+, planet_object{}, star_object{}
 {
   
     star_object.num_elements = 500;
@@ -47,9 +47,9 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
     
     star_model = {starBuffer, model::POSITION | model::NORMAL};
 
-  //set starting view
-//  m_view_transform = glm::translate(m_view_transform, glm::fvec3{ 0.0f, 0.0f, 10.0f });
-//  m_view_transform = glm::rotate(m_view_transform, glm::radians(-10.0f), glm::fvec3{ 1.0f, 0.0f, 0.0f });
+    //set starting view
+    m_view_transform = glm::translate(m_view_transform, glm::fvec3{ 0.0f, 0.0f, 10.0f });
+    m_view_transform = glm::rotate(m_view_transform, glm::radians(-10.0f), glm::fvec3{ 1.0f, 0.0f, 0.0f });
     
     
     
@@ -445,6 +445,32 @@ void ApplicationSolar::initializeGeometry() {
     
     
     
+}
+
+
+//returns a position float, up to specified max value
+//assigns random sign to value (-/+)
+float ApplicationSolar::randPos(){
+    
+    float maxDistFromCentre = 80.0;
+    
+    //multiply and divide by factor of 10 to give more precision
+    int range = int (maxDistFromCentre * 10);
+    
+    float out = float(rand() % range) / 10.f;
+    
+    //assign random sign - make value negative if rand num is even
+    if (rand() % 2 == 0){
+        out = -out;
+    }
+    
+    return out;
+}
+
+//returns a colour between 0.0 and 1.0;
+float ApplicationSolar::randCol(){
+    float out = float(rand() % 100) / 100.0f;
+    return out;
 }
 
 

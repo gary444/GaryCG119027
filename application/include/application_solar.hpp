@@ -38,68 +38,39 @@ class ApplicationSolar : public Application {
   void upload_stars() const;
     
     
-    //returns a position between min and max values
-    float randPos(){
-        
-        //float minDistFromCentre = 20.0;
-        float maxDistFromCentre = 80.0;
-        
-        //multiply and divide by factor of 10 to give more precision
-        int range = int (maxDistFromCentre * 10);
-        
-        float out = float(rand() % range) / 10.f;
-        //out = out + minDistFromCentre;
-        
-        //assign random sign - make value negative if rand num is even
-        if (rand() % 2 == 0){
-            out = -out;
-        }
-        
-        return out;
-    }
+private:
+    float randPos();
+    float randCol();
     
-    //returns a colour between 0.0 and 1.0;
-    float randCol(){
-        float out = float(rand() % 100) / 100.0f;
-        return out;
-    }
     
-    //std::vector< float > testBuffer;
     std::vector< float > starBuffer;
-    float starElementArray[500];
+    //float starElementArray[500];
     
     
+    // cpu representation of models
+    model_object planet_object;
+    model_object star_object;
 
-  // cpu representation of models
-  model_object planet_object;
-  model_object star_object;
-    //star_model star_model;
-    
-    
-//    
-//    float starVertexBuffer[24] = {0.0f, 1.0f, 5.0f, 1.0f, 1.0f, 1.0f,
-//                                  -4.0f, 1.0f, -5.0f, 1.0f, 1.0f, 1.0f,
-//                                  4.0f, -4.0f, 20.0f, 1.0f, 1.0f, 1.0f,
-//                                  -4.0f, 4.0f, 20.0f, 1.0f, 1.0f, 1.0f};
 
-  //planet struct: {size, rotation speed, dist to origin, orbitSkew, hasMoonAtIndex, isMoon}
-  float EARTH_SIZE = 0.2f;
-  float EARTH_SPEED = 0.1f;
-  float EARTH_ORBIT = EARTH_SIZE * 80 ;
+
+    //relative earth values
+  float EARTH_SIZE = 0.15f;
+  float EARTH_SPEED = 0.4f;
+  float EARTH_ORBIT = EARTH_SIZE * 40 ;
 
   //planet attributes originally copied from https://nssdc.gsfc.nasa.gov/planetary/factsheet/planet_table_ratio.html
   // then adapted for aesthetic purposes
   //planet struct initialisation: {size, rotation speed, dist to origin, orbitSkew, hasMoonAtIndex, isMoon}
-  planet planets[10] = { {EARTH_SIZE * 5.0f,  1.0f,                0.0f,                  0.0f,   -1, false},//sun
+  planet planets[10] = { {EARTH_SIZE * 6.0f,  1.0f,                0.0f,                  0.0f,   -1, false},//sun
 					   { EARTH_SIZE * 1.383f,  EARTH_SPEED * 5.8f,  EARTH_ORBIT * 0.387f,  0.2f,   -1, false },//mercury
 					   { EARTH_SIZE * 0.949f,  EARTH_SPEED * 2.4,   EARTH_ORBIT * 0.723f, -0.2f,   -1, false },//venus
 					   { EARTH_SIZE,           EARTH_SPEED,         EARTH_ORBIT,           0.0f,    4, false },//earth
 					   { EARTH_SIZE * 0.2724f, EARTH_SPEED / 0.07f, EARTH_ORBIT * 0.03f,   0.0f,   -1, true },//MOON
 					   { EARTH_SIZE * 0.532f,  EARTH_SPEED * 1.03f, EARTH_ORBIT * 1.52f,   0.03f,  -1, false },//mars
-					   { EARTH_SIZE * 9.21f,   EARTH_SPEED * 0.95f, EARTH_ORBIT * 3.2f,   -0.1f,   -1, false },//jupiter
-					   { EARTH_SIZE * 9.45f,   EARTH_SPEED * 0.9f,  EARTH_ORBIT * 4.58f,   0.05f,  -1, false },//saturn
-					   { EARTH_SIZE * 4.01f,   EARTH_SPEED * 0.85f, EARTH_ORBIT * 5.2,    -0.05f,  -1, false },//uranus
-					   { EARTH_SIZE * 3.88f,   EARTH_SPEED * 0.8,   EARTH_ORBIT * 6.05,   -0.02f,  -1, false } };//neptune
+					   { EARTH_SIZE * 6.21f,   EARTH_SPEED * 0.95f, EARTH_ORBIT * 3.2f,   -0.1f,   -1, false },//jupiter
+					   { EARTH_SIZE * 6.45f,   EARTH_SPEED * 0.9f,  EARTH_ORBIT * 4.58f,   0.05f,  -1, false },//saturn
+					   { EARTH_SIZE * 3.01f,   EARTH_SPEED * 0.85f, EARTH_ORBIT * 5.2,    -0.05f,  -1, false },//uranus
+					   { EARTH_SIZE * 2.88f,   EARTH_SPEED * 0.8,   EARTH_ORBIT * 6.05,   -0.02f,  -1, false } };//neptune
 
 
 
