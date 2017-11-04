@@ -12,12 +12,16 @@ uniform mat4 ProjectionMatrix;
 
 //gl_PointSize = 100.0;
 
-out vec3 pass_Colour;
+//out vec3 pass_Colour;
+
+
+
 
 void main(void)
 {
-    gl_Position = (ProjectionMatrix  * ViewMatrix ) * vec4(in_Position, 1.0);
+    //gl_PointSize = 5.0;
+    gl_Position = (ProjectionMatrix  * ViewMatrix ) * vec4(in_Position, 1.0f);
 //    gl_PointSize.xyz = in_Position;
 //    gl_Position.w = 1.0;
-	pass_Colour = in_Colour;
+	//pass_Colour = in_Colour;
 }

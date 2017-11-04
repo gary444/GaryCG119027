@@ -58,21 +58,11 @@ struct planet {
 	bool isMoon;
 };
 
-struct starPos {
-    double x;
-    double y;
-    double z;
-};
-
-struct starCol {
-    double R;
-    double G;
-    double B;
-};
-
-struct star{
-    starPos pos;
-    starCol col;
+struct star_model {
+    
+    int num_stars;
+    int num_attributes;
+    
 };
 
 
