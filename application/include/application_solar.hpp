@@ -31,11 +31,12 @@ class ApplicationSolar : public Application {
   
 
  protected:
-  void initializeShaderPrograms();
-  void initializeGeometry();
-  void updateView();
-  void upload_planet_transforms(planet planetToDisplay) const;
-  void upload_stars() const;
+    void initializeShaderPrograms();
+    void initializeGeometry();
+    void updateView();
+    void upload_planet_transforms(planet planetToDisplay) const;
+    void upload_stars() const;
+    void upload_Orbits() const;
     
     
 private:
@@ -44,11 +45,15 @@ private:
     
     
     std::vector< float > starBuffer;
+    std::vector< float > orbitBuffer;
+    
+    //int orbitIndices[4] = {0,1,2,3};
     
     
     // cpu representation of models
     model_object planet_object;
     model_object star_object;
+    model_object orbit_object;
 
     //relative earth values
   float EARTH_SIZE = 0.15f;

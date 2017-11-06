@@ -13,8 +13,6 @@ uniform mat4 ProjectionMatrix;
 out vec3 pass_Colour;
 
 
-
-
 void main(void)
 {
     
