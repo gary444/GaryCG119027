@@ -48,6 +48,9 @@ private:
     std::vector< float > starBuffer;
     std::vector< float > orbitBuffer;
     
+    std::vector<float> orbitArrays[10];
+    
+    
     //int orbitIndices[4] = {0,1,2,3};
     
     

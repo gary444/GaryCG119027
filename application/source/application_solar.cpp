@@ -20,6 +20,7 @@ using namespace gl;
 #include <iostream>
 
 #define NUM_STARS 1000
+#define PI 3.141592653589793
 
 model star_model{};
 model planet_model{};
@@ -45,46 +46,50 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
     
     
     //fill orbit buffer
-    //test
-//    orbit_object.num_elements = 10;
-//    for (int i = 0; i < 10; i++){
-//        
-//        // start with a line from left to right
-//        orbitBuffer.push_back(0.0); //x
-//        orbitBuffer.push_back((float)5 - i);//y
-//        orbitBuffer.push_back(0.0);//z
-//        
-//    }
+
     //square:
-    orbit_object.num_elements = 4;
+    orbit_object.num_elements = 1000;
     
-    orbitBuffer.push_back(3.f);//x
-    orbitBuffer.push_back(3.f);//y
-    orbitBuffer.push_back(0.f);//z
+//    orbitBuffer.push_back(3.f);//x
+//    orbitBuffer.push_back(3.f);//y
+//    orbitBuffer.push_back(0.f);//z
 //
-//    orbitBuffer.push_back(1.f);//r
-//    orbitBuffer.push_back(1.f);//g
-//    orbitBuffer.push_back(1.f);//b
-    
-    orbitBuffer.push_back(3.f);//x
-    orbitBuffer.push_back(-3.f);//y
-    orbitBuffer.push_back(0.f);//z
 //    
-//    orbitBuffer.push_back(1.f);//r
-//    orbitBuffer.push_back(1.f);//g
-//    orbitBuffer.push_back(1.f);//b
-    
-    orbitBuffer.push_back(-3.f);//x
-    orbitBuffer.push_back(-3.f);//y
-    orbitBuffer.push_back(0.f);//z
+//    orbitBuffer.push_back(3.f);//x
+//    orbitBuffer.push_back(-3.f);//y
+//    orbitBuffer.push_back(0.f);//z
 //    
-//    orbitBuffer.push_back(1.f);//r
-//    orbitBuffer.push_back(1.f);//g
-//    orbitBuffer.push_back(1.f);//b
+//    orbitBuffer.push_back(-3.f);//x
+//    orbitBuffer.push_back(-3.f);//y
+//    orbitBuffer.push_back(0.f);//z
+//    
+//    orbitBuffer.push_back(-3.f);//x
+//    orbitBuffer.push_back(3.f);//y
+//    orbitBuffer.push_back(0.f);//z
     
-    orbitBuffer.push_back(-3.f);//x
-    orbitBuffer.push_back(3.f);//y
-    orbitBuffer.push_back(0.f);//z
+    //here---work out how to draw a circle using points
+    // (FOR each planet orbit)
+        //FOR each degree/fraction of a radian?
+        //work out x and y values (sin/cos?) - push to array
+        //keep z 0 for now for simlicity - push to array
+    for (int i = 0; i < 1; i++){
+        int pointsPerOrbit = 1000;
+        float increment = 2.0f * (float)PI / (float)pointsPerOrbit;
+        float radius = 6.f;
+        
+        for (float rad = 0.f; rad < (2.0f * PI); rad += increment){
+            
+            //x
+            orbitBuffer.push_back(radius * cos(rad));
+            //y
+            orbitBuffer.push_back(0.f);
+            //z
+            orbitBuffer.push_back(radius * sin(rad));
+        }
+        
+        
+    }
+    
     
     
     //load models
@@ -149,6 +154,10 @@ void ApplicationSolar::render() const {
 // called for each orbit
 void ApplicationSolar::uploadOrbit(float radius, float skew) const{
     
+    //bind shader
+    glUseProgram(m_shaders.at("orbit").handle);
+    
+    
     
 }
 
@@ -164,7 +173,7 @@ void ApplicationSolar::upload_Orbits() const{
     
     glBindVertexArray(orbit_object.vertex_AO);
     //draw - TODO should ask orbit object for draw type
-    glDrawArrays(GL_LINE_LOOP, 0, 4);
+    glDrawArrays(GL_LINE_LOOP, 0, 1000);
     
     //test
     //glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, orbitIndices);
