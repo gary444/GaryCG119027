@@ -1,10 +1,13 @@
 #ifndef STRUCTS_HPP
 #define STRUCTS_HPP
 
+
 #include <map>
 #include <glbinding/gl/gl.h>
 // use gl definitions from glbinding 
 using namespace gl;
+
+
 
 // gpu representation of model
 struct model_object {
@@ -38,13 +41,14 @@ struct shader_program {
 
   // path to shader source
   std::string vertex_path; 
-  std::string fragment_path; 
+  std::string fragment_path;
   // object handle
   GLuint handle;
   // uniform locations mapped to name
   std::map<std::string, GLint> u_locs{};
 };
 
+// structure to hold data for planet upload
 struct planet {
 	double size;
 	double rotationSpeed;
@@ -53,5 +57,16 @@ struct planet {
 	int hasMoonAtIndex;
 	bool isMoon;
 };
+
+struct star_model {
+    
+    int num_stars;
+    int num_attributes;
+    
+};
+
+
+
+
 
 #endif
