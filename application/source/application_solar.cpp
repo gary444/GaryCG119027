@@ -61,26 +61,26 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
     orbitBuffer.push_back(3.f);//x
     orbitBuffer.push_back(3.f);//y
     orbitBuffer.push_back(0.f);//z
-    
-    orbitBuffer.push_back(1.f);//r
-    orbitBuffer.push_back(1.f);//g
-    orbitBuffer.push_back(1.f);//b
+//
+//    orbitBuffer.push_back(1.f);//r
+//    orbitBuffer.push_back(1.f);//g
+//    orbitBuffer.push_back(1.f);//b
     
     orbitBuffer.push_back(3.f);//x
     orbitBuffer.push_back(-3.f);//y
     orbitBuffer.push_back(0.f);//z
-    
-    orbitBuffer.push_back(1.f);//r
-    orbitBuffer.push_back(1.f);//g
-    orbitBuffer.push_back(1.f);//b
+//    
+//    orbitBuffer.push_back(1.f);//r
+//    orbitBuffer.push_back(1.f);//g
+//    orbitBuffer.push_back(1.f);//b
     
     orbitBuffer.push_back(-3.f);//x
     orbitBuffer.push_back(-3.f);//y
     orbitBuffer.push_back(0.f);//z
-    
-    orbitBuffer.push_back(1.f);//r
-    orbitBuffer.push_back(1.f);//g
-    orbitBuffer.push_back(1.f);//b
+//    
+//    orbitBuffer.push_back(1.f);//r
+//    orbitBuffer.push_back(1.f);//g
+//    orbitBuffer.push_back(1.f);//b
     
     orbitBuffer.push_back(-3.f);//x
     orbitBuffer.push_back(3.f);//y
@@ -92,7 +92,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
     //star model uses 'normal' space for colour attributes - both use 3 floats
     star_model = {starBuffer, model::POSITION | model::NORMAL};
     //only use position for orbits
-    orbit_model = {orbitBuffer, model::POSITION | model::NORMAL};
+    orbit_model = {orbitBuffer, model::POSITION};
 
     //set starting view
     m_view_transform = glm::translate(m_view_transform, glm::fvec3{ 0.0f, 0.0f, 10.0f });
@@ -143,6 +143,12 @@ void ApplicationSolar::render() const {
     //==================================================================
     //orbit(s)
     upload_Orbits();
+    
+}
+
+// called for each orbit
+void ApplicationSolar::uploadOrbit(float radius, float skew) const{
+    
     
 }
 
@@ -508,17 +514,7 @@ void ApplicationSolar::initializeGeometry() {
     // first attribute is 3 floats with no offset & stride
     
     glVertexAttribPointer(0, model::POSITION.components, model::POSITION.type, GL_FALSE, orbit_model.vertex_bytes, orbit_model.offsets[model::POSITION]);
-    
 
-    
-    
-//    // generate generic buffer
-//    glGenBuffers(1, &orbit_object.element_BO);
-//    // bind this as an vertex array buffer containing all attributes
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, orbit_object.element_BO);
-//    // configure currently bound array buffer
-//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, model::INDEX.size * orbit_model.indices.size(), orbit_model.indices.data(), GL_STATIC_DRAW);
-    
     
     // store type of primitive to draw
     orbit_object.draw_mode = GL_LINE_LOOP;

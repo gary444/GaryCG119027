@@ -1,6 +1,6 @@
 #version 150
 
-in  vec3 pass_Colour;
+//in  vec3 pass_Colour;
 out vec4 out_Color;
 
 //send constant colour to draw orbit

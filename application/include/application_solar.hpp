@@ -37,6 +37,7 @@ class ApplicationSolar : public Application {
     void upload_planet_transforms(planet planetToDisplay) const;
     void upload_stars() const;
     void upload_Orbits() const;
+    void uploadOrbit(float radius, float skew) const;
     
     
 private:
