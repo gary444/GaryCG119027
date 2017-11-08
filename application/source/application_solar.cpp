@@ -16,11 +16,11 @@ using namespace gl;
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
+#include <math.h>
 #include <iostream>
 
 #define NUM_STARS 1000
-#define PI 3.141592653589793
+#define NUM_POINTS_ON_ORBIT 100
 
 model star_model{};
 model planet_model{};
@@ -30,6 +30,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
  :Application{resource_path}
 , planet_object{}, star_object{}, orbit_object{}
 {
+    glEnable(GL_DEPTH_CLAMP);
   
     //fill star buffer here with random position and colours
     star_object.num_elements = NUM_STARS;
@@ -47,48 +48,43 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
     
     //fill orbit buffer
 
-    //square:
-    orbit_object.num_elements = 1000;
+    orbit_object.num_elements = NUM_POINTS_ON_ORBIT;
+
     
-//    orbitBuffer.push_back(3.f);//x
-//    orbitBuffer.push_back(3.f);//y
-//    orbitBuffer.push_back(0.f);//z
-//
-//    
-//    orbitBuffer.push_back(3.f);//x
-//    orbitBuffer.push_back(-3.f);//y
-//    orbitBuffer.push_back(0.f);//z
-//    
-//    orbitBuffer.push_back(-3.f);//x
-//    orbitBuffer.push_back(-3.f);//y
-//    orbitBuffer.push_back(0.f);//z
-//    
-//    orbitBuffer.push_back(-3.f);//x
-//    orbitBuffer.push_back(3.f);//y
-//    orbitBuffer.push_back(0.f);//z
+    //FOR each planet
+    // check it is not a moon (for now)
+    // calculate values and add to appropriate array in array of arrays
     
-    //here---work out how to draw a circle using points
-    // (FOR each planet orbit)
-        //FOR each degree/fraction of a radian?
-        //work out x and y values (sin/cos?) - push to array
-        //keep z 0 for now for simlicity - push to array
-    for (int i = 0; i < 1; i++){
-        int pointsPerOrbit = 1000;
-        float increment = 2.0f * (float)PI / (float)pointsPerOrbit;
-        float radius = 6.f;
+    //cycle through planet array, not including sun
+    for (int i = 1; i < (sizeof(planets) / sizeof(planets[0])); i++) {
         
-        for (float rad = 0.f; rad < (2.0f * PI); rad += increment){
+        planet thisPlanet = planets[i];
+        
+        //check it is not a moon before drawing planet orbit
+        if (thisPlanet.isMoon == false) {
             
-            //x
-            orbitBuffer.push_back(radius * cos(rad));
-            //y
-            orbitBuffer.push_back(0.f);
-            //z
-            orbitBuffer.push_back(radius * sin(rad));
+            int pointsPerOrbit = NUM_POINTS_ON_ORBIT;
+            float increment = 2.0f * (float)M_PI / (float)pointsPerOrbit;
+            float radius = thisPlanet.distToOrigin;
+            float skew = thisPlanet.orbitSkew;
+            
+            
+            for (float rad = 0.f; rad < (2.0f * M_PI); rad += increment){
+                
+                //x
+                orbitBuffer.push_back(radius * cosf(rad));
+                //y
+                orbitBuffer.push_back(radius * -skew * cosf(rad));
+                //z
+                orbitBuffer.push_back(radius * sinf(rad));
+                
+            }
+            
+            
+            
         }
-        
-        
     }
+    
     
     
     
@@ -110,6 +106,12 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
     
 
   
+}
+
+void ApplicationSolar::fillOrbits() const{
+    
+    
+    
 }
 
 void ApplicationSolar::render() const {
@@ -151,32 +153,30 @@ void ApplicationSolar::render() const {
     
 }
 
-// called for each orbit
-void ApplicationSolar::uploadOrbit(float radius, float skew) const{
-    
-    //bind shader
-    glUseProgram(m_shaders.at("orbit").handle);
-    
-    
-    
-}
+
 
 //assignment 2 extension - draw planet's orbit(s)
 void ApplicationSolar::upload_Orbits() const{
     
+    
     //bind shader
     glUseProgram(m_shaders.at("orbit").handle);
-    //bind VAO
-    
-    //glUniformMatrix4fv(m_shaders.at("orbit").u_locs.at("ModelMatrix"),
-      //                 1, GL_FALSE, glm::value_ptr(model_matrix));
     
     glBindVertexArray(orbit_object.vertex_AO);
-    //draw - TODO should ask orbit object for draw type
-    glDrawArrays(GL_LINE_LOOP, 0, 1000);
     
-    //test
-    //glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_INT, orbitIndices);
+    int numOrbits = orbitBuffer.size() / orbit_object.num_elements;
+    
+    for (int i = 0; i < numOrbits; i++) {
+        
+        int startIndex = i * orbit_object.num_elements;
+        
+        glDrawArrays(GL_LINE_LOOP, startIndex, orbit_object.num_elements);
+        
+    }
+    
+    
+
+    //glDrawArrays(GL_LINE_LOOP, 0, orbit_object.num_elements);
 }
 
 //function added assignment 2
@@ -303,7 +303,7 @@ void ApplicationSolar::updateProjection() {
                        1, GL_FALSE, glm::value_ptr(m_view_projection));
     
     
-    glUseProgram(m_shaders.at("planet").handle);
+    //glUseProgram(m_shaders.at("planet").handle);
 
 
 }
@@ -319,7 +319,7 @@ void ApplicationSolar::uploadUniforms() {
   //glUseProgram(m_shaders.at("star").handle);
   
   updateView();
-  updateProjection();
+  //updateProjection();
 }
 
 // handle key input
@@ -327,22 +327,22 @@ void ApplicationSolar::uploadUniforms() {
 
 void ApplicationSolar::keyCallback(int key, int scancode, int action, int mods) {
 	//move scene toward camera
-  if (key == GLFW_KEY_W && action == GLFW_PRESS) {
+  if (key == GLFW_KEY_W && action != GLFW_RELEASE) {
     m_view_transform = glm::translate(m_view_transform, glm::fvec3{0.0f, 0.0f, -0.3f});
     updateView();
   }
   // move scene away from camera
-  else if (key == GLFW_KEY_S && action == GLFW_PRESS) {
+  else if (key == GLFW_KEY_S && action != GLFW_RELEASE) {
     m_view_transform = glm::translate(m_view_transform, glm::fvec3{0.0f, 0.0f, 0.3f});
     updateView();
   }
   // move scene right
-  else if (key == GLFW_KEY_A && action == GLFW_PRESS) {
+  else if (key == GLFW_KEY_A && action != GLFW_RELEASE) {
 	  m_view_transform = glm::translate(m_view_transform, glm::fvec3{ -1.0f, 0.0f, 0.0f });
 	  updateView();
   }
   //move scene left
-  else if (key == GLFW_KEY_D && action == GLFW_PRESS) {
+  else if (key == GLFW_KEY_D && action != GLFW_RELEASE) {
 	  m_view_transform = glm::translate(m_view_transform, glm::fvec3{ 1.0f, 0.0f, 0.0f });
 	  updateView();
   }
@@ -528,7 +528,7 @@ void ApplicationSolar::initializeGeometry() {
     // store type of primitive to draw
     orbit_object.draw_mode = GL_LINE_LOOP;
     // transfer number of indices to model object
-    orbit_object.num_elements = 4;
+    //orbit_object.num_elements = 4;
     
     
 }

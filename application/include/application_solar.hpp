@@ -7,6 +7,8 @@
 
 #include <vector>
 
+#define NUM_SPHERES 10
+
 
 // gpu representation of model
 class ApplicationSolar : public Application {
@@ -28,7 +30,7 @@ class ApplicationSolar : public Application {
   // draw all objects
   void render() const;
 
-  
+    
 
  protected:
     void initializeShaderPrograms();
@@ -37,10 +39,12 @@ class ApplicationSolar : public Application {
     void upload_planet_transforms(planet planetToDisplay) const;
     void upload_stars() const;
     void upload_Orbits() const;
-    void uploadOrbit(float radius, float skew) const;
+
+
     
     
 private:
+    void fillOrbits() const;
     float randPos();
     float randCol();
     
@@ -48,7 +52,7 @@ private:
     std::vector< float > starBuffer;
     std::vector< float > orbitBuffer;
     
-    std::vector<float> orbitArrays[10];
+    //std::vector<std::vector<float> > orbitArrays[10];
     
     
     //int orbitIndices[4] = {0,1,2,3};
@@ -67,7 +71,7 @@ private:
   //planet attributes originally copied from https://nssdc.gsfc.nasa.gov/planetary/factsheet/planet_table_ratio.html
   // then adapted for aesthetic purposes
   //planet struct initialisation: {size, rotation speed, dist to origin, orbitSkew, hasMoonAtIndex, isMoon}
-  planet planets[10] = { {EARTH_SIZE * 6.0f,  1.0f,                0.0f,                  0.0f,   -1, false},//sun
+  planet planets[NUM_SPHERES] = { {EARTH_SIZE * 6.0f,  1.0f,                0.0f,                  0.0f,   -1, false},//sun
 					   { EARTH_SIZE * 1.383f,  EARTH_SPEED * 5.8f,  EARTH_ORBIT * 0.387f,  0.2f,   -1, false },//mercury
 					   { EARTH_SIZE * 0.949f,  EARTH_SPEED * 2.4,   EARTH_ORBIT * 0.723f, -0.2f,   -1, false },//venus
 					   { EARTH_SIZE,           EARTH_SPEED,         EARTH_ORBIT,           0.0f,    4, false },//earth
