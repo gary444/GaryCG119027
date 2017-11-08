@@ -44,7 +44,7 @@ class ApplicationSolar : public Application {
     
     
 private:
-    void fillOrbits() const;
+    void fillOrbits();
     float randPos();
     float randCol();
     

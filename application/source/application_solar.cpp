@@ -51,6 +51,33 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
     orbit_object.num_elements = NUM_POINTS_ON_ORBIT;
 
     
+
+    
+    
+    
+    
+    //load models
+    model planet_model = model_loader::obj(m_resource_path + "models/sphere.obj", model::NORMAL);
+    //star model uses 'normal' space for colour attributes - both use 3 floats
+    star_model = {starBuffer, model::POSITION | model::NORMAL};
+    //only use position for orbits
+    orbit_model = {orbitBuffer, model::POSITION};
+
+    //set starting view
+    m_view_transform = glm::translate(m_view_transform, glm::fvec3{ 0.0f, 0.0f, 10.0f });
+    m_view_transform = glm::rotate(m_view_transform, glm::radians(-10.0f), glm::fvec3{ 1.0f, 0.0f, 0.0f });
+    
+    
+    
+    initializeGeometry();
+    initializeShaderPrograms();
+    
+
+  
+}
+
+void ApplicationSolar::fillOrbits(){
+    
     //FOR each planet
     // check it is not a moon (for now)
     // calculate values and add to appropriate array in array of arrays
@@ -84,33 +111,6 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
             
         }
     }
-    
-    
-    
-    
-    //load models
-    model planet_model = model_loader::obj(m_resource_path + "models/sphere.obj", model::NORMAL);
-    //star model uses 'normal' space for colour attributes - both use 3 floats
-    star_model = {starBuffer, model::POSITION | model::NORMAL};
-    //only use position for orbits
-    orbit_model = {orbitBuffer, model::POSITION};
-
-    //set starting view
-    m_view_transform = glm::translate(m_view_transform, glm::fvec3{ 0.0f, 0.0f, 10.0f });
-    m_view_transform = glm::rotate(m_view_transform, glm::radians(-10.0f), glm::fvec3{ 1.0f, 0.0f, 0.0f });
-    
-    
-    
-    initializeGeometry();
-    initializeShaderPrograms();
-    
-
-  
-}
-
-void ApplicationSolar::fillOrbits() const{
-    
-    
     
 }
 
