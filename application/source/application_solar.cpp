@@ -47,14 +47,9 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
     
     
     //fill orbit buffer
-
     orbit_object.num_elements = NUM_POINTS_ON_ORBIT;
+    fillOrbits();
 
-    
-
-    
-    
-    
     
     //load models
     model planet_model = model_loader::obj(m_resource_path + "models/sphere.obj", model::NORMAL);
@@ -68,7 +63,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
     m_view_transform = glm::rotate(m_view_transform, glm::radians(-10.0f), glm::fvec3{ 1.0f, 0.0f, 0.0f });
     
     
-    
+    //initialisations
     initializeGeometry();
     initializeShaderPrograms();
     
@@ -78,36 +73,28 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 
 void ApplicationSolar::fillOrbits(){
     
-    //FOR each planet
-    // check it is not a moon (for now)
+    //FOR each planet/moon
     // calculate values and add to appropriate array in array of arrays
     
     //cycle through planet array, not including sun
-    for (int i = 1; i < (sizeof(planets) / sizeof(planets[0])); i++) {
+    for (int i = 0; i < (sizeof(planets) / sizeof(planets[0])); i++) {
         
         planet thisPlanet = planets[i];
         
-        //check it is not a moon before drawing planet orbit
-        if (thisPlanet.isMoon == false) {
+        int pointsPerOrbit = NUM_POINTS_ON_ORBIT;
+        float increment = 2.0f * (float)M_PI / (float)pointsPerOrbit;
+        float radius = thisPlanet.distToOrigin;
+        float skew = thisPlanet.orbitSkew;
+        
+        
+        for (float rad = 0.f; rad < (2.0f * M_PI); rad += increment){
             
-            int pointsPerOrbit = NUM_POINTS_ON_ORBIT;
-            float increment = 2.0f * (float)M_PI / (float)pointsPerOrbit;
-            float radius = thisPlanet.distToOrigin;
-            float skew = thisPlanet.orbitSkew;
-            
-            
-            for (float rad = 0.f; rad < (2.0f * M_PI); rad += increment){
-                
-                //x
-                orbitBuffer.push_back(radius * cosf(rad));
-                //y
-                orbitBuffer.push_back(radius * -skew * cosf(rad));
-                //z
-                orbitBuffer.push_back(radius * sinf(rad));
-                
-            }
-            
-            
+            //x
+            orbitBuffer.push_back(radius * cosf(rad));
+            //y
+            orbitBuffer.push_back(radius * -skew * cosf(rad));
+            //z
+            orbitBuffer.push_back(radius * sinf(rad));
             
         }
     }
@@ -159,24 +146,46 @@ void ApplicationSolar::render() const {
 void ApplicationSolar::upload_Orbits() const{
     
     
-    //bind shader
+    //bind shader and array
     glUseProgram(m_shaders.at("orbit").handle);
-    
     glBindVertexArray(orbit_object.vertex_AO);
     
-    int numOrbits = orbitBuffer.size() / orbit_object.num_elements;
+    int numOrbits = (int)orbitBuffer.size() / orbit_object.num_elements;
     
+    //cycle through array of planets
     for (int i = 0; i < numOrbits; i++) {
         
-        int startIndex = i * orbit_object.num_elements;
+        //if planet is not a moon
+        if (planets[i].isMoon == false) {
+            
+            //don't move shader model matrix - orbit is a static loop
+            glUniformMatrix4fv(m_shaders.at("orbit").u_locs.at("ModelMatrix"),
+                               1, GL_FALSE, glm::value_ptr(glm::fmat4{}));
         
-        glDrawArrays(GL_LINE_LOOP, startIndex, orbit_object.num_elements);
         
+            //draw orbit
+            glDrawArrays(orbit_object.draw_mode, i * orbit_object.num_elements, orbit_object.num_elements);
+            
+            //if this planet has a moon
+            if (planets[i].hasMoonAtIndex > 0) {
+                
+                planet earth = planets[i];
+                
+                //create rotated and translated matrix with planet information
+                glm::fmat4 m_earth = glm::rotate(glm::fmat4{}, float(glfwGetTime() * earth.rotationSpeed), glm::fvec3{ 0.0f, 1.0f, 0.0f });
+                m_earth = glm::translate(m_earth, glm::fvec3{ 0.0f, 0.0f, earth.distToOrigin });
+                m_earth = glm::rotate(m_earth, float (M_PI / 2.f), glm::fvec3{ 0.0f, 0.0f, 1.0f });
+                
+                //update shader model matrix
+                glUniformMatrix4fv(m_shaders.at("orbit").u_locs.at("ModelMatrix"),
+                                   1, GL_FALSE, glm::value_ptr(m_earth));
+                
+                //draw orbit
+                glDrawArrays(orbit_object.draw_mode, earth.hasMoonAtIndex * 100, orbit_object.num_elements);
+                
+            }
+        }
     }
-    
-    
-
-    //glDrawArrays(GL_LINE_LOOP, 0, orbit_object.num_elements);
 }
 
 //function added assignment 2
@@ -279,10 +288,6 @@ void ApplicationSolar::updateView() {
     glUniformMatrix4fv(m_shaders.at("orbit").u_locs.at("ViewMatrix"),
                        1, GL_FALSE, glm::value_ptr(view_matrix));
     
-    
-    
-
-    //glUseProgram(m_shaders.at("planet").handle);
 
     
 }
@@ -302,8 +307,6 @@ void ApplicationSolar::updateProjection() {
     glUniformMatrix4fv(m_shaders.at("orbit").u_locs.at("ProjectionMatrix"),
                        1, GL_FALSE, glm::value_ptr(m_view_projection));
     
-    
-    //glUseProgram(m_shaders.at("planet").handle);
 
 
 }
@@ -394,8 +397,6 @@ void ApplicationSolar::initializeShaderPrograms() {
     m_shaders.emplace("star", shader_program{m_resource_path + "shaders/star.vert",
         m_resource_path + "shaders/star.frag"});
     // request uniform locations for shader program
-    //m_shaders.at("star").u_locs["NormalMatrix"] = -1;
-    //m_shaders.at("star").u_locs["ModelMatrix"] = -1;
     m_shaders.at("star").u_locs["ViewMatrix"] = -1;
     m_shaders.at("star").u_locs["ProjectionMatrix"] = -1;
     
@@ -403,7 +404,6 @@ void ApplicationSolar::initializeShaderPrograms() {
     m_shaders.emplace("orbit", shader_program{m_resource_path + "shaders/orbit.vert",
         m_resource_path + "shaders/orbit.frag"});
     // request uniform locations for shader program
-    m_shaders.at("orbit").u_locs["NormalMatrix"] = -1;
     m_shaders.at("orbit").u_locs["ModelMatrix"] = -1;
     m_shaders.at("orbit").u_locs["ViewMatrix"] = -1;
     m_shaders.at("orbit").u_locs["ProjectionMatrix"] = -1;
@@ -491,16 +491,6 @@ void ApplicationSolar::initializeGeometry() {
     glVertexAttribPointer(1, star_model.NORMAL.components, star_model.NORMAL.type, GL_FALSE, star_model.vertex_bytes, star_model.offsets[model::NORMAL]);
     
     
-    
-//    // generate generic buffer
-//    glGenBuffers(1, &star_object.element_BO);
-//    // bind this as an vertex array buffer containing all attributes
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, star_object.element_BO);
-//    // configure currently bound array buffer
-//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, model::INDEX.size * star_model.indices.size(), star_model.indices.data(), GL_STATIC_DRAW);
-
-    
-    
     // end star initialisation
   //======================================================================
     //orbit initialisation
@@ -527,8 +517,6 @@ void ApplicationSolar::initializeGeometry() {
     
     // store type of primitive to draw
     orbit_object.draw_mode = GL_LINE_LOOP;
-    // transfer number of indices to model object
-    //orbit_object.num_elements = 4;
     
     
 }

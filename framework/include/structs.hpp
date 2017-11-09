@@ -50,10 +50,10 @@ struct shader_program {
 
 // structure to hold data for planet upload
 struct planet {
-	double size;
-	double rotationSpeed;
-	double distToOrigin;
-	double orbitSkew;
+	float size;
+	float rotationSpeed;
+	float distToOrigin;
+	float orbitSkew;
 	int hasMoonAtIndex;
 	bool isMoon;
 };
