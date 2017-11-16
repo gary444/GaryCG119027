@@ -66,8 +66,6 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
     //initialisations
     initializeGeometry();
     initializeShaderPrograms();
-    
-
   
 }
 
@@ -289,9 +287,9 @@ void ApplicationSolar::updateView() {
                      1, GL_FALSE, glm::value_ptr(view_matrix));
     
     
-    //added for assignment 3
+    //added for assignment 3 - upload sun's position to planet shader
     //create vec 4 of origin
-    glm::vec4 origin = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+    glm::vec4 origin(0.0f, 0.0f, 0.0f, 0.0f);
     //multiply by view matrx
     glm::vec4 sunPos4 = view_matrix * origin;
     //cast to vec3
