@@ -244,6 +244,10 @@ void ApplicationSolar::upload_planet_transforms(planet planetToDisplay) const
         glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("NormalMatrix"),
                            1, GL_FALSE, glm::value_ptr(normal_matrix2));
         
+        
+        
+        
+        
         // bind the VAO to draw
         glBindVertexArray(planet_object.vertex_AO);
         
@@ -263,6 +267,10 @@ void ApplicationSolar::upload_planet_transforms(planet planetToDisplay) const
     glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("NormalMatrix"),
                        1, GL_FALSE, glm::value_ptr(normal_matrix));
     
+    //upload diffuse colour to shader (assignment 3)
+    glm::vec3 planetColour(1.0f, 0.0f, 0.0f);
+    glUniform3fv(m_shaders.at("planet").u_locs.at("DiffuseColour"), 1, glm::value_ptr(planetColour));
+    
     // bind the VAO to draw
     glBindVertexArray(planet_object.vertex_AO);
     
@@ -279,6 +287,18 @@ void ApplicationSolar::updateView() {
     glUseProgram(m_shaders.at("planet").handle);
   glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ViewMatrix"),
                      1, GL_FALSE, glm::value_ptr(view_matrix));
+    
+    
+    //added for assignment 3
+    //create vec 4 of origin
+    glm::vec4 origin = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+    //multiply by view matrx
+    glm::vec4 sunPos4 = view_matrix * origin;
+    //cast to vec3
+    glm::vec3 sunPos3(sunPos4);
+    //upload vec3 to planet shader
+    glUniform3fv(m_shaders.at("planet").u_locs.at("SunPosition"), 1, glm::value_ptr(sunPos3));
+    
     
     glUseProgram(m_shaders.at("star").handle);
     glUniformMatrix4fv(m_shaders.at("star").u_locs.at("ViewMatrix"),
@@ -383,14 +403,16 @@ void ApplicationSolar::mouseCallback(double pos_x, double pos_y) {
 // load shader programs
 void ApplicationSolar::initializeShaderPrograms() {
     
-  // store shader program objects in container
-  m_shaders.emplace("planet", shader_program{m_resource_path + "shaders/simple.vert",
+    // store shader program objects in container
+    m_shaders.emplace("planet", shader_program{m_resource_path + "shaders/simple.vert",
                                            m_resource_path + "shaders/simple.frag"});
-  // request uniform locations for shader program
-  m_shaders.at("planet").u_locs["NormalMatrix"] = -1;
-  m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
-  m_shaders.at("planet").u_locs["ViewMatrix"] = -1;
-  m_shaders.at("planet").u_locs["ProjectionMatrix"] = -1;
+    // request uniform locations for shader program
+    m_shaders.at("planet").u_locs["NormalMatrix"] = -1;
+    m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
+    m_shaders.at("planet").u_locs["ViewMatrix"] = -1;
+    m_shaders.at("planet").u_locs["ProjectionMatrix"] = -1;
+    m_shaders.at("planet").u_locs["SunPosition"] = -1;
+    m_shaders.at("planet").u_locs["DiffuseColour"] = -1;
     
     
     // add star shader here
@@ -407,6 +429,7 @@ void ApplicationSolar::initializeShaderPrograms() {
     m_shaders.at("orbit").u_locs["ModelMatrix"] = -1;
     m_shaders.at("orbit").u_locs["ViewMatrix"] = -1;
     m_shaders.at("orbit").u_locs["ProjectionMatrix"] = -1;
+    
     
     
 }
@@ -455,6 +478,8 @@ void ApplicationSolar::initializeGeometry() {
   planet_object.draw_mode = GL_TRIANGLES;
   // transfer number of indices to model object 
   planet_object.num_elements = GLsizei(planet_model.indices.size());
+    
+    
     
     
     
