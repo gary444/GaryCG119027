@@ -16,13 +16,14 @@ uniform mat4 NormalMatrix;
 
 //assignment 3
 uniform vec3 SunPosition;
-//need cam position?
 uniform vec3 DiffuseColour;
+uniform int ShaderMode;
 
 out vec3 pass_Normal;
 out vec3 pass_VertexViewPosition;
 out vec3 pass_LightSourceViewPosition;
 out vec3 pass_diffuseColour;
+out float pass_ShaderMode;
 
 void main(void)
 {
@@ -34,5 +35,5 @@ void main(void)
 
     pass_LightSourceViewPosition = SunPosition;
     pass_diffuseColour = DiffuseColour;
-    
+    pass_ShaderMode = float(ShaderMode);
 }

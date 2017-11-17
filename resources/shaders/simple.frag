@@ -7,17 +7,26 @@ in vec3 pass_Normal;
 in vec3 pass_VertexViewPosition;
 in vec3 pass_LightSourceViewPosition;
 in vec3 pass_diffuseColour;
+in float pass_ShaderMode;
 
 out vec4 out_Color;
 
-float ambientK = 0.3;
-//double ambientI;
-float diffuseK = 0.6;
-float specularK = 100.0;
+float ambientK = 0.1;
+float diffuseK = 0.8;
+float specularK = 50.0;
 vec3 specularColour = vec3(1.0, 1.0, 1.0);
+
 
 void main() {
     
+    if (pass_ShaderMode == 1.0) {
+        ambientK = 0.1;
+    }
+    else {
+        ambientK = 1.0;
+    }
+    
+
     
     vec3 normal = normalize(pass_Normal);
     vec3 lightDir = normalize(pass_LightSourceViewPosition - pass_VertexViewPosition);

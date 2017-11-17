@@ -6,6 +6,7 @@
 #include <glbinding/gl/gl.h>
 // use gl definitions from glbinding 
 using namespace gl;
+#include <glm/gtc/type_ptr.hpp>
 
 
 
@@ -56,6 +57,7 @@ struct planet {
 	float orbitSkew;
 	int hasMoonAtIndex;
 	bool isMoon;
+    glm::vec3 RGBColour;
 };
 
 struct star_model {

@@ -30,7 +30,8 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
  :Application{resource_path}
 , planet_object{}, star_object{}, orbit_object{}
 {
-    glEnable(GL_DEPTH_CLAMP);
+    //glEnable(GL_DEPTH_CLAMP);
+    
   
     //fill star buffer here with random position and colours
     star_object.num_elements = NUM_STARS;
@@ -206,8 +207,6 @@ void ApplicationSolar::upload_stars() const{
 // added function assignment 1
 void ApplicationSolar::upload_planet_transforms(planet planetToDisplay) const
 {
-    // bind shader to upload uniforms
-    //glUseProgram(m_shaders.at("planet").handle);
     
     // use rotation speed and planet skew to create planet's orbit
     glm::fmat4 model_matrix = glm::rotate(glm::fmat4{}, float(glfwGetTime() * planetToDisplay.rotationSpeed), glm::fvec3{ planetToDisplay.orbitSkew, 1.0f, 0.0f });
@@ -218,9 +217,6 @@ void ApplicationSolar::upload_planet_transforms(planet planetToDisplay) const
     
     // if this planet has a moon, add a moon using planet's location as a starting point
     if (planetToDisplay.hasMoonAtIndex > 0) {
-        
-        // bind shader to upload uniforms
-        //glUseProgram(m_shaders.at("planet").handle);
         
         planet moon = planets[planetToDisplay.hasMoonAtIndex];
         
@@ -266,7 +262,7 @@ void ApplicationSolar::upload_planet_transforms(planet planetToDisplay) const
                        1, GL_FALSE, glm::value_ptr(normal_matrix));
     
     //upload diffuse colour to shader (assignment 3)
-    glm::vec3 planetColour(1.0f, 0.0f, 0.0f);
+    glm::vec3 planetColour = planetToDisplay.RGBColour;
     glUniform3fv(m_shaders.at("planet").u_locs.at("DiffuseColour"), 1, glm::value_ptr(planetColour));
     
     // bind the VAO to draw
@@ -286,7 +282,7 @@ void ApplicationSolar::updateView() {
     glUseProgram(m_shaders.at("planet").handle);
     //added for assignment 3 - upload sun's position to planet shader
     //create vec 4 of origin
-    glm::vec4 origin(0.0f, 100.0f, 0.0f, 1.0f);
+    glm::vec4 origin(0.0f, 0.0f, 0.0f, 1.0f);
     //multiply by view matrx
     glm::vec4 sunPos4 = view_matrix * origin;
     //cast to vec3
@@ -350,25 +346,43 @@ void ApplicationSolar::uploadUniforms() {
 
 void ApplicationSolar::keyCallback(int key, int scancode, int action, int mods) {
 	//move scene toward camera
-  if (key == GLFW_KEY_W && action != GLFW_RELEASE) {
-    m_view_transform = glm::translate(m_view_transform, glm::fvec3{0.0f, 0.0f, -0.3f});
-    updateView();
-  }
-  // move scene away from camera
-  else if (key == GLFW_KEY_S && action != GLFW_RELEASE) {
-    m_view_transform = glm::translate(m_view_transform, glm::fvec3{0.0f, 0.0f, 0.3f});
-    updateView();
-  }
-  // move scene right
-  else if (key == GLFW_KEY_A && action != GLFW_RELEASE) {
-	  m_view_transform = glm::translate(m_view_transform, glm::fvec3{ -1.0f, 0.0f, 0.0f });
-	  updateView();
-  }
-  //move scene left
-  else if (key == GLFW_KEY_D && action != GLFW_RELEASE) {
-	  m_view_transform = glm::translate(m_view_transform, glm::fvec3{ 1.0f, 0.0f, 0.0f });
-	  updateView();
-  }
+    if (key == GLFW_KEY_W && action != GLFW_RELEASE) {
+        m_view_transform = glm::translate(m_view_transform, glm::fvec3{0.0f, 0.0f, -0.3f});
+        updateView();
+    }
+    // move scene away from camera
+    else if (key == GLFW_KEY_S && action != GLFW_RELEASE) {
+        m_view_transform = glm::translate(m_view_transform, glm::fvec3{0.0f, 0.0f, 0.3f});
+        updateView();
+    }
+    // move scene right
+    else if (key == GLFW_KEY_A && action != GLFW_RELEASE) {
+        m_view_transform = glm::translate(m_view_transform, glm::fvec3{ -1.0f, 0.0f, 0.0f });
+        updateView();
+    }
+    //move scene left
+    else if (key == GLFW_KEY_D && action != GLFW_RELEASE) {
+        m_view_transform = glm::translate(m_view_transform, glm::fvec3{ 1.0f, 0.0f, 0.0f });
+        updateView();
+    }
+    
+    //switch between shading modes
+    else if (key == GLFW_KEY_1 && action != GLFW_PRESS) {
+        
+        glUseProgram(m_shaders.at("planet").handle);
+        glUniform1i(m_shaders.at("planet").u_locs.at("ShaderMode"), 1);
+        
+    }
+    //switch between shading modes
+    else if (key == GLFW_KEY_2 && action != GLFW_PRESS) {
+        glUseProgram(m_shaders.at("planet").handle);
+        glUniform1i(m_shaders.at("planet").u_locs.at("ShaderMode"), 2);
+        
+    }
+    
+    
+
+    
 
 }
 
@@ -413,6 +427,7 @@ void ApplicationSolar::initializeShaderPrograms() {
     m_shaders.at("planet").u_locs["ProjectionMatrix"] = -1;
     m_shaders.at("planet").u_locs["SunPosition"] = -1;
     m_shaders.at("planet").u_locs["DiffuseColour"] = -1;
+    m_shaders.at("planet").u_locs["ShaderMode"] = -1;
     
     
     // add star shader here
