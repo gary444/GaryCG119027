@@ -64,7 +64,7 @@ private:
     model_object orbit_object;
 
     //relative earth values
-  float EARTH_SIZE = 0.15f;
+  float EARTH_SIZE = 0.45f;
   float EARTH_SPEED = 0.4f;
   float EARTH_ORBIT = EARTH_SIZE * 40 ;
 

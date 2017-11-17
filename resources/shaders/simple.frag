@@ -13,7 +13,7 @@ out vec4 out_Color;
 float ambientK = 0.3;
 //double ambientI;
 float diffuseK = 0.6;
-float specularK = 10.0;
+float specularK = 100.0;
 vec3 specularColour = vec3(1.0, 1.0, 1.0);
 
 void main() {
@@ -31,31 +31,26 @@ void main() {
     
     //calc diffuse light
     float lambertian = max(dot(lightDir, normal), 0.0);
-    float specular = 0.0;
+    vec3 diffuse = lambertian * pass_diffuseColour * diffuseK;
     
+    //specular
+    float specularIntensity = 0.0;
     if (lambertian > 0.0) {
+        
         
         vec3 viewDir = normalize(-pass_VertexViewPosition);
         vec3 halfwayVector = normalize(viewDir + lightDir);
         
         float specAngle = max(dot(halfwayVector, normal), 0.0);
+        //float specAngle = dot(halfwayVector, normal);
         
-        specular = pow(specAngle, specularK);
+        specularIntensity = pow(specAngle, specularK);
     }
     
-    vec3 diffuse = lambertian * pass_diffuseColour;
-    
-    //specular
-    
-    vec3 specularLight = specularColour * specular;
+    vec3 specular = specularColour * specularIntensity;
     
     
-
+    out_Color = vec4(ambient + diffuse + specular, 1.0);
+    //out_Color = vec4(ambient + diffuse , 1.0);
     
-    
-    
-    
-    out_Color = vec4(ambient + diffuse + specularLight, 1.0);
-    
-   //out_Color = vec4(abs(normalize(pass_Normal)), 1.0);
 }

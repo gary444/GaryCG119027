@@ -151,7 +151,7 @@ void ApplicationSolar::upload_Orbits() const{
     int numOrbits = (int)orbitBuffer.size() / orbit_object.num_elements;
     
     //cycle through array of planets
-    for (int i = 0; i < numOrbits; i++) {
+    for (int i = 1; i < numOrbits; i++) {
         
         //if planet is not a moon
         if (planets[i].isMoon == false) {
@@ -282,20 +282,22 @@ void ApplicationSolar::updateView() {
   glm::fmat4 view_matrix = glm::inverse(m_view_transform);
   // upload matrix to gpu
     
+    
     glUseProgram(m_shaders.at("planet").handle);
-  glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ViewMatrix"),
-                     1, GL_FALSE, glm::value_ptr(view_matrix));
-    
-    
     //added for assignment 3 - upload sun's position to planet shader
     //create vec 4 of origin
-    glm::vec4 origin(0.0f, 0.0f, 0.0f, 0.0f);
+    glm::vec4 origin(0.0f, 100.0f, 0.0f, 1.0f);
     //multiply by view matrx
     glm::vec4 sunPos4 = view_matrix * origin;
     //cast to vec3
     glm::vec3 sunPos3(sunPos4);
     //upload vec3 to planet shader
     glUniform3fv(m_shaders.at("planet").u_locs.at("SunPosition"), 1, glm::value_ptr(sunPos3));
+    
+    
+    glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ViewMatrix"),
+                     1, GL_FALSE, glm::value_ptr(view_matrix));
+    
     
     
     glUseProgram(m_shaders.at("star").handle);
@@ -541,6 +543,9 @@ void ApplicationSolar::initializeGeometry() {
     // store type of primitive to draw
     orbit_object.draw_mode = GL_LINE_LOOP;
     
+    //global==========================================
+//    glEnable(GL_DEPTH_TEST);
+//    glCullFace(GL_BACK);
     
 }
 

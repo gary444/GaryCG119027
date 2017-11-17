@@ -13,8 +13,10 @@ uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ProjectionMatrix;
 uniform mat4 NormalMatrix;
+
 //assignment 3
 uniform vec3 SunPosition;
+//need cam position?
 uniform vec3 DiffuseColour;
 
 out vec3 pass_Normal;
@@ -26,7 +28,7 @@ void main(void)
 {
 	gl_Position = (ProjectionMatrix  * ViewMatrix * ModelMatrix) * vec4(in_Position, 1.0);
 	pass_Normal = (NormalMatrix * vec4(in_Normal, 0.0)).xyz;
-    
+
     //assignment3
     pass_VertexViewPosition = vec3(ViewMatrix * ModelMatrix * vec4(in_Position, 1.0));
 
