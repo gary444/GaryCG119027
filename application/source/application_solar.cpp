@@ -105,7 +105,7 @@ void ApplicationSolar::fillOrbits(){
 void ApplicationSolar::render() const {
     
     
-    
+    glClearColor(0.031f, 0.043f, 0.231f, 1.0);
     
     //==================================================================
     //planets

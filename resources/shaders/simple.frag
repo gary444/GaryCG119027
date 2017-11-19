@@ -15,7 +15,8 @@ float ambientK = 0.3;
 float diffuseK = 0.8;
 float specularK = 50.0;
 vec3 specularColour = vec3(1.0, 1.0, 1.0);
-vec3 outlineColour = vec3(0.196, 0.945, 0.921);
+//vec3 outlineColour = vec3(0.196, 0.945, 0.921);
+vec3 outlineColour = vec3(0.0, 0.0, 0.0);
 
 //function for clamping colours to a discrete number of shades
 //ref from: http://sunandblackcat.com/tipFullView.php?l=eng&topicid=15
