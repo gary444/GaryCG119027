@@ -19,8 +19,10 @@ using namespace gl;
 #include <math.h>
 #include <iostream>
 
+#define NUM_PLANETS 10
 #define NUM_STARS 1000
 #define NUM_POINTS_ON_ORBIT 100
+
 
 model star_model{};
 model planet_model{};
@@ -149,7 +151,7 @@ void ApplicationSolar::upload_Orbits() const{
     glUseProgram(m_shaders.at("orbit").handle);
     glBindVertexArray(orbit_object.vertex_AO);
     
-    int numOrbits = (int)orbitBuffer.size() / orbit_object.num_elements;
+    int numOrbits = sizeof(planets) / sizeof(planets[0]);
     
     //cycle through array of planets
     for (int i = 1; i < numOrbits; i++) {
@@ -264,6 +266,29 @@ void ApplicationSolar::upload_planet_transforms(planet planetToDisplay) const
     //upload diffuse colour to shader (assignment 3)
     glm::vec3 planetColour = planetToDisplay.RGBColour;
     glUniform3fv(m_shaders.at("planet").u_locs.at("DiffuseColour"), 1, glm::value_ptr(planetColour));
+    
+    //this is to make the sun 'shine' - upload origin with 0.0 as w co-ord
+    glm::fmat4 view_matrix = glm::inverse(m_view_transform);
+    glm::vec4 origin;
+    if (planetToDisplay.name == "sun" ) {
+        
+        //create vec 4 of origin
+        origin = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+        
+    }
+    else {
+        //create vec 4 of origin
+        origin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        
+    }
+    //multiply by view matrx
+    glm::vec4 sunPos4 = view_matrix * origin;
+    //cast to vec3
+    glm::vec3 sunPos3(sunPos4);
+    //upload vec3 to planet shader
+    glUniform3fv(m_shaders.at("planet").u_locs.at("SunPosition"), 1, glm::value_ptr(sunPos3));
+    
+    
     
     // bind the VAO to draw
     glBindVertexArray(planet_object.vertex_AO);

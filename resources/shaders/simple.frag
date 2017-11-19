@@ -11,20 +11,24 @@ in float pass_ShaderMode;
 
 out vec4 out_Color;
 
-float ambientK = 0.1;
+float ambientK = 0.3;
 float diffuseK = 0.8;
 float specularK = 50.0;
 vec3 specularColour = vec3(1.0, 1.0, 1.0);
+vec3 outlineColour = vec3(0.196, 0.945, 0.921);
 
+//function for clamping colours to a discrete number of shades
+//ref from: http://sunandblackcat.com/tipFullView.php?l=eng&topicid=15
+float cellify(float inputIntensity, int numShades){
+    
+    //float outI = 1.0;
+    float outI = round(inputIntensity * numShades) / numShades;
+    
+    return outI;
+}
 
 void main() {
-    
-    if (pass_ShaderMode == 1.0) {
-        ambientK = 0.1;
-    }
-    else {
-        ambientK = 1.0;
-    }
+
     
 
     
@@ -42,12 +46,14 @@ void main() {
     float lambertian = max(dot(lightDir, normal), 0.0);
     vec3 diffuse = lambertian * pass_diffuseColour * diffuseK;
     
+    vec3 viewDir = normalize(-pass_VertexViewPosition);
+    
     //specular
     float specularIntensity = 0.0;
     if (lambertian > 0.0) {
         
         
-        vec3 viewDir = normalize(-pass_VertexViewPosition);
+        
         vec3 halfwayVector = normalize(viewDir + lightDir);
         
         float specAngle = max(dot(halfwayVector, normal), 0.0);
@@ -60,6 +66,34 @@ void main() {
     
     
     out_Color = vec4(ambient + diffuse + specular, 1.0);
-    //out_Color = vec4(ambient + diffuse , 1.0);
     
+    
+    //cel shading=============
+    if (pass_ShaderMode == 1.0) {
+        
+        float viewAngle = dot(normal, viewDir);
+        
+        if (viewAngle < 0.4) {
+            out_Color = vec4(outlineColour, 1.0);
+        }
+        else {
+            float rI = out_Color.x;
+            float gI = out_Color.y;
+            float bI = out_Color.z;
+            
+            rI = cellify(rI, 4);
+            gI = cellify(gI, 4);
+            bI = cellify(bI, 4);
+            
+            
+            out_Color = vec4(rI, gI, bI, 1.0);
+        }
+        
+        
+    }
+  
 }
+
+
+
+

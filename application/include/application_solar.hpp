@@ -73,16 +73,16 @@ private:
   //planet attributes originally copied from https://nssdc.gsfc.nasa.gov/planetary/factsheet/planet_table_ratio.html
   // then adapted for aesthetic purposes
   //planet struct initialisation: {size, rotation speed, dist to origin, orbitSkew, hasMoonAtIndex, isMoon}
-  planet planets[NUM_SPHERES] = { {EARTH_SIZE * 6.0f,  1.0f,                0.0f,                  0.0f,   -1, false, {0.933, 0.741, 0.184}},//sun
-					   { EARTH_SIZE * 1.383f,  EARTH_SPEED * 5.8f,  EARTH_ORBIT * 0.387f,  0.2f,   -1, false , {0.760, 0.670, 0.439}},//mercury
-					   { EARTH_SIZE * 0.949f,  EARTH_SPEED * 2.4f,   EARTH_ORBIT * 0.723f, -0.2f,   -1, false , {0.827, 0.392, 0.035}},//venus
-					   { EARTH_SIZE,           EARTH_SPEED,         EARTH_ORBIT,           0.0f,    4, false , {0.231, 0.349, 0.568}},//earth
-					   { EARTH_SIZE * 0.2724f, EARTH_SPEED / 0.07f, EARTH_ORBIT * 0.03f,   0.0f,   -1, true , {0.980, 0.980, 0.937}},//MOON
-					   { EARTH_SIZE * 0.532f,  EARTH_SPEED * 1.03f, EARTH_ORBIT * 1.52f,   0.03f,  -1, false , {0.741, 0.325, 0.039}},//mars
-					   { EARTH_SIZE * 6.21f,   EARTH_SPEED * 0.95f, EARTH_ORBIT * 3.2f,   -0.1f,   -1, false , {0.741, 0.243, 0.039}},//jupiter
-					   { EARTH_SIZE * 6.45f,   EARTH_SPEED * 0.9f,  EARTH_ORBIT * 4.58f,   0.05f,  -1, false , {0.741, 0.705, 0.039}},//saturn
-					   { EARTH_SIZE * 3.01f,   EARTH_SPEED * 0.85f, EARTH_ORBIT * 5.2f,    -0.05f,  -1, false , {0.039, 0.596, 0.741}},//uranus
-					   { EARTH_SIZE * 2.88f,   EARTH_SPEED * 0.8f,   EARTH_ORBIT * 6.05f,   -0.02f,  -1, false , {0.247, 0.223, 0.952}} };//neptune
+  planet planets[NUM_SPHERES] = { {"sun", EARTH_SIZE * 6.0f,  1.0f,                0.0f,                  0.0f,   -1, false, {0.933, 0.741, 0.184}},//sun
+					   {"mercury",  EARTH_SIZE * 1.383f,  EARTH_SPEED * 5.8f,  EARTH_ORBIT * 0.387f,  0.2f,   -1, false , {0.760, 0.670, 0.439}},//mercury
+					   {"venus",  EARTH_SIZE * 0.949f,  EARTH_SPEED * 2.4f,   EARTH_ORBIT * 0.723f, -0.2f,   -1, false , {0.827, 0.392, 0.035}},//venus
+					   {"earth",  EARTH_SIZE,           EARTH_SPEED,         EARTH_ORBIT,           0.0f,    4, false , {0.231, 0.349, 0.568}},//earth
+					   {"moon",  EARTH_SIZE * 0.2724f, EARTH_SPEED / 0.07f, EARTH_ORBIT * 0.03f,   0.0f,   -1, true , {0.980, 0.980, 0.937}},//MOON
+					   {"mars",  EARTH_SIZE * 0.532f,  EARTH_SPEED * 1.03f, EARTH_ORBIT * 1.52f,   0.03f,  -1, false , {0.741, 0.325, 0.039}},//mars
+					   {"jupiter",  EARTH_SIZE * 6.21f,   EARTH_SPEED * 0.95f, EARTH_ORBIT * 3.2f,   -0.1f,   -1, false , {0.741, 0.243, 0.039}},//jupiter
+					   {"saturn",  EARTH_SIZE * 6.45f,   EARTH_SPEED * 0.9f,  EARTH_ORBIT * 4.58f,   0.05f,  -1, false , {0.741, 0.705, 0.039}},//saturn
+					   {"uranus",  EARTH_SIZE * 3.01f,   EARTH_SPEED * 0.85f, EARTH_ORBIT * 5.2f,    -0.05f,  -1, false , {0.039, 0.596, 0.741}},//uranus
+					   {"neptune",  EARTH_SIZE * 2.88f,   EARTH_SPEED * 0.8f,   EARTH_ORBIT * 6.05f,   -0.02f,  -1, false , {0.247, 0.223, 0.952}} };//neptune
  
 
 

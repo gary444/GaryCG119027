@@ -51,6 +51,7 @@ struct shader_program {
 
 // structure to hold data for planet upload
 struct planet {
+    std::string name;
 	float size;
 	float rotationSpeed;
 	float distToOrigin;
