@@ -35,5 +35,7 @@ void main(void)
 
     pass_LightSourceViewPosition = SunPosition;
     pass_diffuseColour = DiffuseColour;
+    
+    //cast to float because fragment shader doesn't accept an int
     pass_ShaderMode = float(ShaderMode);
 }

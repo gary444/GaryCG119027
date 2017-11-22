@@ -54,10 +54,6 @@ private:
     std::vector< float > starBuffer;
     std::vector< float > orbitBuffer;
     
-    //std::vector<std::vector<float> > orbitArrays[10];
-    
-    
-    //int orbitIndices[4] = {0,1,2,3};
     
     
     // cpu representation of models
@@ -77,7 +73,7 @@ private:
 					   {"mercury",  EARTH_SIZE * 1.383f,  EARTH_SPEED * 5.8f,  EARTH_ORBIT * 0.387f,  0.2f,   -1, false , {0.760, 0.670, 0.439}},//mercury
 					   {"venus",  EARTH_SIZE * 0.949f,  EARTH_SPEED * 2.4f,   EARTH_ORBIT * 0.723f, -0.2f,   -1, false , {0.827, 0.392, 0.035}},//venus
 					   {"earth",  EARTH_SIZE,           EARTH_SPEED,         EARTH_ORBIT,           0.0f,    4, false , {0.231, 0.349, 0.568}},//earth
-					   {"moon",  EARTH_SIZE * 0.2724f, EARTH_SPEED / 0.07f, EARTH_ORBIT * 0.03f,   0.0f,   -1, true , {0.980, 0.980, 0.937}},//MOON
+					   {"moon",  EARTH_SIZE * 0.2724f, EARTH_SPEED / 0.2f, EARTH_ORBIT * 0.08f,   0.0f,   -1, true , {0.980, 0.980, 0.937}},//MOON
 					   {"mars",  EARTH_SIZE * 0.532f,  EARTH_SPEED * 1.03f, EARTH_ORBIT * 1.52f,   0.03f,  -1, false , {0.741, 0.325, 0.039}},//mars
 					   {"jupiter",  EARTH_SIZE * 6.21f,   EARTH_SPEED * 0.95f, EARTH_ORBIT * 3.2f,   -0.1f,   -1, false , {0.741, 0.243, 0.039}},//jupiter
 					   {"saturn",  EARTH_SIZE * 6.45f,   EARTH_SPEED * 0.9f,  EARTH_ORBIT * 4.58f,   0.05f,  -1, false , {0.741, 0.705, 0.039}},//saturn
