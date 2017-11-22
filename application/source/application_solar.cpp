@@ -102,7 +102,7 @@ void ApplicationSolar::fillOrbits(){
 
 void ApplicationSolar::render() const {
     
-    
+    //set background colour...hard coded to dark blue
     glClearColor(0.031f, 0.043f, 0.231f, 1.0);
     
     //==================================================================
@@ -149,12 +149,13 @@ void ApplicationSolar::upload_Orbits() const{
     glUseProgram(m_shaders.at("orbit").handle);
     glBindVertexArray(orbit_object.vertex_AO);
     
+    //num of orbits = num of planets
     int numOrbits = sizeof(planets) / sizeof(planets[0]);
     
-    //cycle through array of planets
+    //cycle through array of planets from 1 - planet 0 (sun) doesnt need an orbit
     for (int i = 1; i < numOrbits; i++) {
         
-        //if planet is not a moon
+        //if planet is not a moon...
         if (planets[i].isMoon == false) {
             
             //don't move shader model matrix - orbit is a static loop
@@ -194,11 +195,9 @@ void ApplicationSolar::upload_stars() const{
     
     // bind shader to upload uniforms
     glUseProgram(m_shaders.at("star").handle);
-    
     // bind the VAO to draw
     glBindVertexArray(star_object.vertex_AO);
-
-    //TODO ask object for draw type
+    //draw all
     glDrawArrays(GL_POINTS, 0, star_object.num_elements);
     
     
@@ -240,9 +239,8 @@ void ApplicationSolar::upload_planet_transforms(planet planetToDisplay) const
         glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("NormalMatrix"),
                            1, GL_FALSE, glm::value_ptr(normal_matrix2));
         
-        
+        //upload colour to shader
         glm::vec3 moonColour = moon.RGBColour;
-        //glm::vec3 moonColour = glm::vec3{0.0, 0.0, 0.0};
         glUniform3fv(m_shaders.at("planet").u_locs.at("DiffuseColour"), 1, glm::value_ptr(moonColour));
         
         
@@ -287,7 +285,6 @@ void ApplicationSolar::upload_planet_transforms(planet planetToDisplay) const
     glm::vec3 sunPos(view_matrix * origin);
     //upload vec3 to planet shader
     glUniform3fv(m_shaders.at("planet").u_locs.at("SunPosition"), 1, glm::value_ptr(sunPos));
-    
     
     
     // bind the VAO to draw
@@ -351,7 +348,7 @@ void ApplicationSolar::uploadUniforms() {
   
   
   updateView();
-  //updateProjection();
+  updateProjection();
 }
 
 // handle key input
@@ -485,8 +482,6 @@ void ApplicationSolar::initializeGeometry() {
   // first attribute is 3 floats with no offset & stride
   glVertexAttribPointer(0, model::POSITION.components, model::POSITION.type, GL_FALSE, planet_model.vertex_bytes, planet_model.offsets[model::POSITION]);
     
-    
-    
   // activate second attribute on gpu
   glEnableVertexAttribArray(1);
   // second attribute is 3 floats with no offset & stride
@@ -504,9 +499,6 @@ void ApplicationSolar::initializeGeometry() {
   planet_object.draw_mode = GL_TRIANGLES;
   // transfer number of indices to model object 
   planet_object.num_elements = GLsizei(planet_model.indices.size());
-    
-    
-    
     
     
   //======================================================================
@@ -565,13 +557,8 @@ void ApplicationSolar::initializeGeometry() {
     
     glVertexAttribPointer(0, model::POSITION.components, model::POSITION.type, GL_FALSE, orbit_model.vertex_bytes, orbit_model.offsets[model::POSITION]);
 
-    
     // store type of primitive to draw
     orbit_object.draw_mode = GL_LINE_LOOP;
-    
-    //global==========================================
-//    glEnable(GL_DEPTH_TEST);
-//    glCullFace(GL_BACK);
     
 }
 
@@ -612,12 +599,10 @@ ApplicationSolar::~ApplicationSolar() {
 
     //delete star buffers
     glDeleteBuffers(1, &star_object.vertex_BO);
-    //glDeleteBuffers(1, &star_object.element_BO);
     glDeleteVertexArrays(1, &star_object.vertex_AO);
     
     //delete star buffers
     glDeleteBuffers(1, &orbit_object.vertex_BO);
-    //glDeleteBuffers(1, &orbit_object.element_BO);
     glDeleteVertexArrays(1, &orbit_object.vertex_AO);
     
 }
