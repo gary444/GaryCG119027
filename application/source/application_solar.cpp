@@ -4,6 +4,7 @@
 #include "utils.hpp"
 #include "shader_loader.hpp"
 #include "model_loader.hpp"
+#include "texture_loader.hpp"
 
 #include <glbinding/gl/gl.h>
 // use gl definitions from glbinding 
@@ -19,7 +20,7 @@ using namespace gl;
 #include <math.h>
 #include <iostream>
 
-//#define NUM_PLANETS 12
+//#define NUM_PLANETS 10
 #define NUM_STARS 1000
 #define NUM_POINTS_ON_ORBIT 100
 
@@ -32,6 +33,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
  :Application{resource_path}
 , planet_object{}, star_object{}, orbit_object{}
 {
+    
   
     //fill star buffer here with random position and colours
     star_object.num_elements = NUM_STARS;
@@ -51,9 +53,13 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
     orbit_object.num_elements = NUM_POINTS_ON_ORBIT;
     fillOrbits();
 
+    //load textures
+    loadTextures();
     
     //load models
-    model planet_model = model_loader::obj(m_resource_path + "models/sphere.obj", model::NORMAL);
+    model planet_model = model_loader::obj(m_resource_path + "models/sphere.obj", model::NORMAL | model::TEXCOORD);
+    
+    
     //star model uses 'normal' space for colour attributes - both use 3 floats
     star_model = {starBuffer, model::POSITION | model::NORMAL};
     //only use position for orbits
@@ -69,6 +75,39 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
     initializeShaderPrograms();
   
 }
+
+
+void ApplicationSolar::loadTextures(){
+    
+    //TODO - cycle through all planets and load relevant textures
+    
+    pixel_data newTexture = texture_loader::file(m_resource_path + "textures/smallgreen.png");
+    
+//    for (int i = 0; i < 10; i++) {
+//        planets[i].texture = newTexture;
+//    }
+
+    planets[0].texture = newTexture;
+    
+    //set active texture
+    glActiveTexture(GL_TEXTURE0);
+    //generate texture object
+    glGenTextures(1, &texBufferID);
+    //bind texture to 2D texture binding point of active unit
+    glBindTexture(GL_TEXTURE_2D, texBufferID);
+    
+    //define sampling parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    //define texture data and texture format
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei)newTexture.width, (GLsizei)newTexture.height, 0, newTexture.channels, newTexture.channel_type, newTexture.ptr());
+    
+    
+    
+}
+
+
 
 void ApplicationSolar::fillOrbits(){
     
@@ -101,6 +140,8 @@ void ApplicationSolar::fillOrbits(){
 }
 
 void ApplicationSolar::render() const {
+    
+    
     
     //set background colour...hard coded to dark blue
     glClearColor(0.031f, 0.043f, 0.231f, 1.0);
@@ -217,8 +258,6 @@ void ApplicationSolar::upload_planet_transforms(planet planetToDisplay) const
     // if this planet has a moon, add a moon using planet's location as a starting point
     if (planetToDisplay.hasMoonAtIndex > 0) {
         
-        
-        
         planet moon = planets[planetToDisplay.hasMoonAtIndex];
         
         //rotate at moon's speed
@@ -229,7 +268,6 @@ void ApplicationSolar::upload_planet_transforms(planet planetToDisplay) const
         
         // scale moon according to planet size
         model_matrix2 = glm::scale(model_matrix2, glm::fvec3{ moon.size, moon.size, moon.size});
-        
         
         glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ModelMatrix"),
                            1, GL_FALSE, glm::value_ptr(model_matrix2));
@@ -286,6 +324,24 @@ void ApplicationSolar::upload_planet_transforms(planet planetToDisplay) const
     //upload vec3 to planet shader
     glUniform3fv(m_shaders.at("planet").u_locs.at("SunPosition"), 1, glm::value_ptr(sunPos));
     
+    
+    
+    //textures========================================================
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texBufferID);
+    
+    //get location of sampler uniform
+    int colour_sampler_location = glGetUniformLocation(m_shaders.at("planet").handle, "ColourTex");
+    glUseProgram(m_shaders.at("planet").handle);
+    //upload index of unit to shader
+    glUniform1i(colour_sampler_location, 0);
+
+    
+    
+    
+    
+    //end textures====================================================
     
     // bind the VAO to draw
     glBindVertexArray(planet_object.vertex_AO);
@@ -487,6 +543,9 @@ void ApplicationSolar::initializeGeometry() {
   // second attribute is 3 floats with no offset & stride
   glVertexAttribPointer(1, model::NORMAL.components, model::NORMAL.type, GL_FALSE, planet_model.vertex_bytes, planet_model.offsets[model::NORMAL]);
 
+    // activate third attribute on gpu
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, model::TEXCOORD.components, model::TEXCOORD.type, GL_FALSE, planet_model.vertex_bytes, planet_model.offsets[model::TEXCOORD]);
 
    // generate generic buffer
   glGenBuffers(1, &planet_object.element_BO);

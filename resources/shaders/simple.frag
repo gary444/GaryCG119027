@@ -8,6 +8,11 @@ in vec3 pass_VertexViewPosition;
 in vec3 pass_LightSourceViewPosition;
 in vec3 pass_diffuseColour;
 in float pass_ShaderMode;
+in vec2 pass_Texcoord;
+//in sampler2D pass_ColourTex;
+
+//assignment 4
+uniform sampler2D ColourTex;
 
 out vec4 out_Color;
 
@@ -20,6 +25,13 @@ vec3 outlineColour = vec3(0.850, 0.968, 0.956);
 
 
 void main() {
+    
+    vec4 baseColour = texture(ColourTex, pass_Texcoord);
+    out_Color = baseColour;
+    //vec3 baseColour = pass_diffuseColour;
+    
+    
+    /*comment out blinn phong for now
 
     //normalise normal vector
     vec3 normal = normalize(pass_Normal);
@@ -27,12 +39,12 @@ void main() {
     vec3 lightDir = normalize(pass_LightSourceViewPosition - pass_VertexViewPosition);
     
     //calculate ambient light
-    vec3 ambient = ambientK * pass_diffuseColour;
+    vec3 ambient = ambientK * baseColour;
     
     //calculate diffuse light
     //lambertian is cos of angle between light and normal
     float lambertian = max(dot(lightDir, normal), 0.0);
-    vec3 diffuse = lambertian * pass_diffuseColour * diffuseK;
+    vec3 diffuse = lambertian * baseColour * diffuseK;
     
     vec3 viewDir = normalize(-pass_VertexViewPosition);
     
@@ -73,6 +85,8 @@ void main() {
         
         
     }
+     
+     */
   
 }
 

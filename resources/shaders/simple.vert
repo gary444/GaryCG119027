@@ -7,6 +7,7 @@
 // vertex attributes of VAO
 layout(location = 0) in vec3 in_Position;
 layout(location = 1) in vec3 in_Normal;
+layout(location = 2) in vec2 in_Texcoord;
 
 //Matrix Uniforms as specified with glUniformMatrix4fv
 uniform mat4 ModelMatrix;
@@ -19,11 +20,16 @@ uniform vec3 SunPosition;
 uniform vec3 DiffuseColour;
 uniform int ShaderMode;
 
+
+
 out vec3 pass_Normal;
 out vec3 pass_VertexViewPosition;
 out vec3 pass_LightSourceViewPosition;
 out vec3 pass_diffuseColour;
 out float pass_ShaderMode;
+//assignment 4
+out vec2 pass_Texcoord;
+//out sampler2D pass_ColourTex;
 
 void main(void)
 {
@@ -38,4 +44,9 @@ void main(void)
     
     //cast to float because fragment shader doesn't accept an int
     pass_ShaderMode = float(ShaderMode);
+    
+    //assignment4
+    pass_Texcoord = in_Texcoord;
+    //pass_ColourTex = ColourTex;
+    //pass_diffuseColour = texture(ColourTex, in_Texcoord);
 }

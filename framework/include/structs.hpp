@@ -7,6 +7,7 @@
 // use gl definitions from glbinding 
 using namespace gl;
 #include <glm/gtc/type_ptr.hpp>
+#include "pixel_data.hpp"
 
 
 
@@ -59,6 +60,7 @@ struct planet {
 	int hasMoonAtIndex;
 	bool isMoon;
     glm::vec3 RGBColour;
+    pixel_data texture;
 };
 
 struct star_model {

@@ -41,14 +41,12 @@ class ApplicationSolar : public Application {
     void upload_planet_transforms(planet planetToDisplay) const;
     void upload_stars() const;
     void upload_Orbits() const;
-
-
-    
     
 private:
     void fillOrbits();
     float randPos();
     float randCol();
+    void loadTextures();
     
     
     std::vector< float > starBuffer;
@@ -60,6 +58,9 @@ private:
     model_object planet_object;
     model_object star_object;
     model_object orbit_object;
+    
+    GLuint texBufferID;
+    
 
     //relative earth values
   float EARTH_SIZE = 0.45f;
