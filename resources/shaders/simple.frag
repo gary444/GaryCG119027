@@ -26,12 +26,10 @@ vec3 outlineColour = vec3(0.850, 0.968, 0.956);
 
 void main() {
     
-    vec4 baseColour = texture(ColourTex, pass_Texcoord);
-    out_Color = baseColour;
+    vec3 baseColour = vec3(texture(ColourTex, pass_Texcoord));
+    //out_Color = baseColour;
     //vec3 baseColour = pass_diffuseColour;
     
-    
-    /*comment out blinn phong for now
 
     //normalise normal vector
     vec3 normal = normalize(pass_Normal);
@@ -86,7 +84,7 @@ void main() {
         
     }
      
-     */
+     
   
 }
 

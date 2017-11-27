@@ -38,7 +38,7 @@ class ApplicationSolar : public Application {
     void initializeShaderPrograms();
     void initializeGeometry();
     void updateView();
-    void upload_planet_transforms(planet planetToDisplay) const;
+    void upload_planet_transforms(int planetIndex) const;
     void upload_stars() const;
     void upload_Orbits() const;
     
@@ -59,8 +59,11 @@ private:
     model_object star_object;
     model_object orbit_object;
     
-    GLuint texBufferID;
+//    GLuint texBufferID1;
+//    GLuint texBufferID2;
+    GLuint texBufferIDs[NUM_SPHERES];
     
+    //bool motionOn;
 
     //relative earth values
   float EARTH_SIZE = 0.45f;

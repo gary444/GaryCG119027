@@ -33,6 +33,8 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
  :Application{resource_path}
 , planet_object{}, star_object{}, orbit_object{}
 {
+    //motion on by default
+    //motionOn = true;
     
   
     //fill star buffer here with random position and colours
@@ -77,34 +79,38 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 }
 
 
+//cycle through all planets and load relevant textures
 void ApplicationSolar::loadTextures(){
     
-    //TODO - cycle through all planets and load relevant textures
+    //holds texture info
+    pixel_data newTexture;
     
-    pixel_data newTexture = texture_loader::file(m_resource_path + "textures/smallgreen.png");
-    
-//    for (int i = 0; i < 10; i++) {
-//        planets[i].texture = newTexture;
-//    }
-
-    planets[0].texture = newTexture;
-    
-    //set active texture
-    glActiveTexture(GL_TEXTURE0);
-    //generate texture object
-    glGenTextures(1, &texBufferID);
-    //bind texture to 2D texture binding point of active unit
-    glBindTexture(GL_TEXTURE_2D, texBufferID);
-    
-    //define sampling parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    //define texture data and texture format
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei)newTexture.width, (GLsizei)newTexture.height, 0, newTexture.channels, newTexture.channel_type, newTexture.ptr());
-    
-    
-    
+    //for each planet
+    for (int i = 0; i < (sizeof(planets) / sizeof(planets[0])); i++) {
+        
+        //load texture from file for this planet
+        newTexture = texture_loader::file(m_resource_path + "textures/" + planets[i].name + ".png");
+        
+        //set ID
+        texBufferIDs[i] = (GLuint)i;
+        
+        //switch active texture
+        glActiveTexture((GLenum) (GL_TEXTURE0 + i));
+        //generate texture object
+        glGenTextures(1, &texBufferIDs[i]);
+        //bind texture to 2D texture binding point of active unit
+        glBindTexture(GL_TEXTURE_2D, texBufferIDs[i]);
+        
+        //define sampling parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        
+        //define texture data and texture format
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei)newTexture.width, (GLsizei)newTexture.height, 0, newTexture.channels, newTexture.channel_type, newTexture.ptr());
+        
+        
+        
+    }
 }
 
 
@@ -163,7 +169,7 @@ void ApplicationSolar::render() const {
         if (testPlanet.isMoon == false) {
             
             // upload planet
-            upload_planet_transforms(testPlanet);
+            upload_planet_transforms(i);
         }
         
     }
@@ -213,13 +219,19 @@ void ApplicationSolar::upload_Orbits() const{
                 planet earth = planets[i];
                 
                 //create rotated and translated matrix with planet information
-                glm::fmat4 m_earth = glm::rotate(glm::fmat4{}, float(glfwGetTime() * earth.rotationSpeed), glm::fvec3{ 0.0f, 1.0f, 0.0f });
+                glm::fmat4 m_earth;
+                
+                
+               
+                m_earth = glm::rotate(glm::fmat4{}, float(glfwGetTime() * earth.rotationSpeed), glm::fvec3{ 0.0f, 1.0f, 0.0f });
                 m_earth = glm::translate(m_earth, glm::fvec3{ 0.0f, 0.0f, earth.distToOrigin });
                 m_earth = glm::rotate(m_earth, float (M_PI / 2.f), glm::fvec3{ 0.0f, 0.0f, 1.0f });
                 
-                //update shader model matrix
+                
+                
                 glUniformMatrix4fv(m_shaders.at("orbit").u_locs.at("ModelMatrix"),
                                    1, GL_FALSE, glm::value_ptr(m_earth));
+
                 
                 //draw orbit
                 glDrawArrays(orbit_object.draw_mode, earth.hasMoonAtIndex * 100, orbit_object.num_elements);
@@ -245,8 +257,10 @@ void ApplicationSolar::upload_stars() const{
 }
 
 // added function assignment 1
-void ApplicationSolar::upload_planet_transforms(planet planetToDisplay) const
+void ApplicationSolar::upload_planet_transforms(int planetIndex) const
 {
+    
+    planet planetToDisplay = planets[planetIndex];
     
     // use rotation speed and planet skew to create planet's orbit
     glm::fmat4 model_matrix = glm::rotate(glm::fmat4{}, float(glfwGetTime() * planetToDisplay.rotationSpeed), glm::fvec3{ planetToDisplay.orbitSkew, 1.0f, 0.0f });
@@ -281,6 +295,10 @@ void ApplicationSolar::upload_planet_transforms(planet planetToDisplay) const
         glm::vec3 moonColour = moon.RGBColour;
         glUniform3fv(m_shaders.at("planet").u_locs.at("DiffuseColour"), 1, glm::value_ptr(moonColour));
         
+        int colour_sampler_location = glGetUniformLocation(m_shaders.at("planet").handle, "ColourTex");
+        glActiveTexture((GLenum)(GL_TEXTURE0 + planetToDisplay.hasMoonAtIndex));
+        //glBindTexture(GL_TEXTURE_2D, texBufferIDs[planetToDisplay.hasMoonAtIndex]);
+        glUniform1i(colour_sampler_location, planetToDisplay.hasMoonAtIndex);
         
         // bind the VAO to draw
         glBindVertexArray(planet_object.vertex_AO);
@@ -328,14 +346,24 @@ void ApplicationSolar::upload_planet_transforms(planet planetToDisplay) const
     
     //textures========================================================
     
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texBufferID);
+    
+    
+    //glUseProgram(m_shaders.at("planet").handle);
+    //upload index of unit to shader
+    //glUniform1i(colour_sampler_location, 0);
     
     //get location of sampler uniform
     int colour_sampler_location = glGetUniformLocation(m_shaders.at("planet").handle, "ColourTex");
-    glUseProgram(m_shaders.at("planet").handle);
-    //upload index of unit to shader
-    glUniform1i(colour_sampler_location, 0);
+    glActiveTexture((GLenum)(GL_TEXTURE0 + planetIndex));
+    //glBindTexture(GL_TEXTURE_2D, texBufferIDs[planetIndex]);
+    glUniform1i(colour_sampler_location, planetIndex);
+    
+    
+
+    
+    
+    
+    
 
     
     
@@ -443,6 +471,11 @@ void ApplicationSolar::keyCallback(int key, int scancode, int action, int mods) 
         glUniform1i(m_shaders.at("planet").u_locs.at("ShaderMode"), 2);
         
     }
+    //toggle motion with P key
+//    else if (key == GLFW_KEY_P && action != GLFW_PRESS) {
+//        motionOn = !motionOn;
+//        
+//    }
     
     
 

@@ -60,7 +60,7 @@ struct planet {
 	int hasMoonAtIndex;
 	bool isMoon;
     glm::vec3 RGBColour;
-    pixel_data texture;
+    //pixel_data texture;
 };
 
 struct star_model {
