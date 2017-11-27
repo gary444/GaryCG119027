@@ -123,7 +123,8 @@ void Launcher::mainLoop() {
   // enable depth testing
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
-  
+    
+
   // rendering loop
   while (!glfwWindowShouldClose(m_window)) {
     // query input

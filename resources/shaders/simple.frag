@@ -17,7 +17,7 @@ out vec4 out_Color;
 
 float ambientK = 0.3;
 float diffuseK = 0.8;
-float specularK = 0.7;
+float specularK = 0.2;
 float glossiness = 3.0; // low glossiness as planets are not that shiny!
 vec3 specularColour = vec3(1.0, 1.0, 1.0);
 vec3 outlineColour = vec3(0.850, 0.968, 0.956);

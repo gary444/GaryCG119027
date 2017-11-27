@@ -41,16 +41,20 @@ class ApplicationSolar : public Application {
     void upload_planet_transforms(int planetIndex) const;
     void upload_stars() const;
     void upload_Orbits() const;
+    void upload_skybox() const;
     
 private:
     void fillOrbits();
+    void buildSkybox();
     float randPos();
     float randCol();
-    void loadTextures();
+    void loadAllTextures();
+    void loadTexture(std::string name, GLuint texId);
     
     
     std::vector< float > starBuffer;
     std::vector< float > orbitBuffer;
+    std::vector< float > skyBoxBuffer;
     
     
     
@@ -58,12 +62,13 @@ private:
     model_object planet_object;
     model_object star_object;
     model_object orbit_object;
+    model_object skybox_object;
     
-//    GLuint texBufferID1;
-//    GLuint texBufferID2;
-    GLuint texBufferIDs[NUM_SPHERES];
+    GLuint texBufferIDs[NUM_SPHERES + 1];
     
     //bool motionOn;
+    bool orbitsOn;
+    bool starsOn;
 
     //relative earth values
   float EARTH_SIZE = 0.45f;
