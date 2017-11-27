@@ -9,7 +9,6 @@ in vec3 pass_LightSourceViewPosition;
 in vec3 pass_diffuseColour;
 in float pass_ShaderMode;
 in vec2 pass_Texcoord;
-//in sampler2D pass_ColourTex;
 
 //assignment 4
 uniform sampler2D ColourTex;
@@ -26,8 +25,8 @@ vec3 outlineColour = vec3(0.850, 0.968, 0.956);
 
 void main() {
     
-    vec3 baseColour = vec3(texture(ColourTex, pass_Texcoord));
-    //out_Color = baseColour;
+    vec2 newCoord = vec2(pass_Texcoord.x * 0.5, (pass_Texcoord.y * 0.5) + 0.5);
+    vec3 baseColour = vec3(texture(ColourTex, newCoord));
     //vec3 baseColour = pass_diffuseColour;
     
 
@@ -80,12 +79,7 @@ void main() {
             out_Color = ceil(out_Color * 4) / 4;
             
         }
-        
-        
     }
-     
-     
-  
 }
 
 

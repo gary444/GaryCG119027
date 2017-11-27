@@ -72,8 +72,8 @@ private:
 
   //planet attributes originally copied from https://nssdc.gsfc.nasa.gov/planetary/factsheet/planet_table_ratio.html
   // then adapted for aesthetic purposes
-  //planet struct initialisation: {size, rotation speed, dist to origin, orbitSkew, hasMoonAtIndex, isMoon}
-  planet planets[NUM_SPHERES] = { {"sun", EARTH_SIZE * 6.0f,  1.0f,                0.0f,                  0.0f,   -1, false, {0.933, 0.741, 0.184}},//sun
+  //planet struct initialisation: {name, size, rotation speed, dist to origin, orbitSkew, hasMoonAtIndex, isMoon}
+  planet planets[NUM_SPHERES] = { {"sun", EARTH_SIZE * 6.0f,  0.0f,                0.0f,                  0.0f,   -1, false, {0.933, 0.741, 0.184}},//sun
 					   {"mercury",  EARTH_SIZE * 1.383f,  EARTH_SPEED * 5.8f,  EARTH_ORBIT * 0.387f,  0.2f,   -1, false , {0.760, 0.670, 0.439}},//mercury
 					   {"venus",  EARTH_SIZE * 0.949f,  EARTH_SPEED * 2.4f,   EARTH_ORBIT * 0.723f, -0.2f,   -1, false , {0.827, 0.392, 0.035}},//venus
 					   {"earth",  EARTH_SIZE,           EARTH_SPEED,         EARTH_ORBIT,           0.0f,    4, false , {0.231, 0.349, 0.568}},//earth

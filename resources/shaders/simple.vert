@@ -14,8 +14,7 @@ uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ProjectionMatrix;
 uniform mat4 NormalMatrix;
-
-//assignment 3
+//assignment 3:
 uniform vec3 SunPosition;
 uniform vec3 DiffuseColour;
 uniform int ShaderMode;
@@ -27,9 +26,8 @@ out vec3 pass_VertexViewPosition;
 out vec3 pass_LightSourceViewPosition;
 out vec3 pass_diffuseColour;
 out float pass_ShaderMode;
-//assignment 4
+//assignment 4:
 out vec2 pass_Texcoord;
-//out sampler2D pass_ColourTex;
 
 void main(void)
 {
@@ -47,6 +45,4 @@ void main(void)
     
     //assignment4
     pass_Texcoord = in_Texcoord;
-    //pass_ColourTex = ColourTex;
-    //pass_diffuseColour = texture(ColourTex, in_Texcoord);
 }
