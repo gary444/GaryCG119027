@@ -9,9 +9,13 @@ in vec3 pass_LightSourceViewPosition;
 in vec3 pass_diffuseColour;
 in float pass_ShaderMode;
 in vec2 pass_Texcoord;
+in vec3 pass_Tangent;
 
 //assignment 4
 uniform sampler2D ColourTex;
+//assignment 4 extn
+uniform sampler2D NormalMapIndex;
+uniform bool UseBumpMap;
 
 out vec4 out_Color;
 
@@ -25,13 +29,47 @@ vec3 outlineColour = vec3(0.850, 0.968, 0.956);
 
 void main() {
     
-    vec2 newCoord = vec2(pass_Texcoord.x * 0.5, (pass_Texcoord.y * 0.5) + 0.5);
+    //adjust co-ordinates to better fit over planets
+    vec2 newCoord = vec2((pass_Texcoord.x * 0.25 - 0.5) * 1.0, (pass_Texcoord.y * 0.5) + 0.5);
+    
     vec3 baseColour = vec3(texture(ColourTex, newCoord));
     //vec3 baseColour = pass_diffuseColour;
     
-
-    //normalise normal vector
-    vec3 normal = normalize(pass_Normal);
+    //assignment4 extn--------------------------------------------------
+    //normal mapping
+    
+    vec3 normal;
+    
+    if (UseBumpMap) {
+        
+        vec3 bumpyNormal = normalize(vec3(texture(NormalMapIndex, newCoord)));
+        //translate to tangent space by scaling
+        bumpyNormal = vec3(bumpyNormal.x * 2.0 - 1.0, bumpyNormal.y * 2.0 - 1.0, bumpyNormal.z);
+        
+        normal = normalize(pass_Normal);
+        vec3 tangent = normalize(pass_Tangent);
+        
+        //normal = pass_Normal;
+        //tangent = pass_Tangent;
+        
+        //calculate bitangent using cross product of N and T
+        vec3 bitangent = cross(normal, tangent);
+        //create matrix
+        mat3 tangentMatrix = transpose(mat3(tangent,bitangent,normal));
+        bumpyNormal = bumpyNormal * tangentMatrix;
+        
+        normal = normalize(bumpyNormal);
+        
+    }
+    else {
+        normal = normalize(pass_Normal);
+    }
+    
+    
+    
+    //---------------------------------------------------------------
+    
+    
     //create vector for dorection of 'light' - from origin to vertex positions in view space
     vec3 lightDir = normalize(pass_LightSourceViewPosition - pass_VertexViewPosition);
     

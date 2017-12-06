@@ -128,6 +128,7 @@ void generate_normals(tinyobj::mesh_t& model) {
 }
 
 std::vector<glm::fvec3> generate_tangents(tinyobj::mesh_t const& model) {
+    
   // containers for vertex attributes
   std::vector<glm::fvec3> positions(model.positions.size() / 3);
   std::vector<glm::fvec3> normals(model.positions.size() / 3);
@@ -154,16 +155,49 @@ std::vector<glm::fvec3> generate_tangents(tinyobj::mesh_t const& model) {
                            model.indices[i * 3 + 1],
                            model.indices[i * 3 + 2]};
     // access an attribute of xth vert with vector access "attribute[indices[x]]"
+      // help from http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-13-normal-mapping/
+      
+      // calculate tangent for the triangle and add it to the accumulation tangents of the adjacent vertices
+      //vertices
+      glm::vec3 v0 = positions[indices[0]];
+      glm::vec3 v1 = positions[indices[1]];
+      glm::vec3 v2 = positions[indices[2]];
+      //tex coords
+      glm::vec2 uv0 = texcoords[indices[0]];
+      glm::vec2 uv1 = texcoords[indices[1]];
+      glm::vec2 uv2 = texcoords[indices[2]];
+      // Edges of the triangle : position delta
+      glm::vec3 deltaPos1 = v1 - v0;
+      glm::vec3 deltaPos2 = v2 - v0;
+      // UV delta
+      glm::vec2 deltaUV1 = uv1 - uv0;
+      glm::vec2 deltaUV2 = uv2 - uv0;
+      
+      //gen tangents
+      float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+      glm::vec3 tangent = (deltaPos1 * deltaUV2.y   - deltaPos2 * deltaUV1.y)*r;
+      
+      //add tangents to tangent array
+      tangents[indices[0]] = tangent;
+      tangents[indices[1]] = tangent;
+      tangents[indices[2]] = tangent;
     
-    // calculate tangent for the triangle and add it to the accumulation tangents of the adjacent vertices
     // see generate_normals() for similar workflow 
   }
   // normalize and orthogonalize accumulated vertex tangents
   for (unsigned i = 0; i < tangents.size(); ++i) {
-    // implement orthogonalization and normalization here
+      
+      //orthogonalization
+      tangents[i] = tangents[i] - normals[i] * glm::dot(normals[i], tangents[i]);
+      //normalization
+      tangents[i] = glm::normalize(tangents[i]);
+      
   }
+    
+    //std::cout << tangents.size() << std::endl;
+    //int test = tangents.size();
 
-  throw std::logic_error("Tangent creation not implemented yet");
+  //throw std::logic_error("Tangent creation not implemented yet");
 
   return tangents;
 }

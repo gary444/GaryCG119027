@@ -62,8 +62,11 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
     //load textures
     loadAllTextures();
     
+    //load normal map
+    loadNormalMap(GL_TEXTURE12);
+    
     //load models
-    model planet_model = model_loader::obj(m_resource_path + "models/sphere.obj", model::NORMAL | model::TEXCOORD);
+    model planet_model = model_loader::obj(m_resource_path + "models/sphere.obj", model::NORMAL | model::TEXCOORD | model::TANGENT);
     
     
     //star model uses 'normal' space for colour attributes - both use 3 floats
@@ -83,6 +86,31 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
   
 }
 
+//loads a normal map
+void ApplicationSolar::loadNormalMap(GLenum targetTextureUnit){
+    
+    //load texture from file for this planet
+    pixel_data newTexture = texture_loader::file(m_resource_path + "normal_maps/earth_bumpmap.png");
+    
+    GLuint TEX_POSITION = 11;
+    
+    //set ID
+    texBufferIDs[TEX_POSITION] = TEX_POSITION;
+    
+    //switch active texture
+    glActiveTexture(targetTextureUnit);
+    //generate texture object
+    glGenTextures(1, &texBufferIDs[TEX_POSITION]);
+    //bind texture to 2D texture binding point of active unit
+    glBindTexture(GL_TEXTURE_2D, texBufferIDs[TEX_POSITION]);
+    
+    //define sampling parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    //define texture data and texture format
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei)newTexture.width, (GLsizei)newTexture.height, 0, newTexture.channels, newTexture.channel_type, newTexture.ptr());
+}
 
 //cycle through all planets and load relevant textures
 void ApplicationSolar::loadAllTextures(){
@@ -132,7 +160,6 @@ void ApplicationSolar::loadTexture(std::string name, GLuint texId){
     
     //switch active texture
     glActiveTexture((GLenum) (GL_TEXTURE0 + texId));
-    //glActiveTexture(GL_TEXTURE10);
     //generate texture object
     glGenTextures(1, &texBufferIDs[texId]);
     //bind texture to 2D texture binding point of active unit
@@ -421,6 +448,7 @@ void ApplicationSolar::upload_planet_transforms(int planetIndex) const
     //multiply by view matrx, cast to vec3
     glm::vec3 sunPos(view_matrix * origin);
     //upload vec3 to planet shader
+    
     glUniform3fv(m_shaders.at("planet").u_locs.at("SunPosition"), 1, glm::value_ptr(sunPos));
 
     
@@ -428,9 +456,18 @@ void ApplicationSolar::upload_planet_transforms(int planetIndex) const
 
     
     //get location of sampler uniform
-    glActiveTexture((GLenum)(GL_TEXTURE0 + planetIndex));
+    glActiveTexture(GL_TEXTURE0 + planetIndex);
     glUniform1i(m_shaders.at("planet").u_locs.at("ColourTex"), planetIndex);
     
+    //normal map
+    glUniform1i(m_shaders.at("planet").u_locs.at("NormalMapIndex"), (int)texBufferIDs[11]);
+    
+    if (planetToDisplay.name == "earth") {
+        glUniform1b(m_shaders.at("planet").u_locs.at("UseBumpMap"), true);
+    }
+    else {
+        glUniform1b(m_shaders.at("planet").u_locs.at("UseBumpMap"), false);
+    }
     
     
     //end textures====================================================
@@ -598,6 +635,8 @@ void ApplicationSolar::initializeShaderPrograms() {
     m_shaders.at("planet").u_locs["DiffuseColour"] = -1;
     m_shaders.at("planet").u_locs["ShaderMode"] = -1;
     m_shaders.at("planet").u_locs["ColourTex"] = -1;
+    m_shaders.at("planet").u_locs["NormalMapIndex"] = -1;
+    m_shaders.at("planet").u_locs["UseBumpMap"] = -1;
     
     
     // add star shader here
@@ -649,9 +688,15 @@ void ApplicationSolar::initializeGeometry() {
   // second attribute is 3 floats with no offset & stride
   glVertexAttribPointer(1, model::NORMAL.components, model::NORMAL.type, GL_FALSE, planet_model.vertex_bytes, planet_model.offsets[model::NORMAL]);
 
-    // activate third attribute on gpu
+    // activate third attribute on gpu - texture coordinates
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, model::TEXCOORD.components, model::TEXCOORD.type, GL_FALSE, planet_model.vertex_bytes, planet_model.offsets[model::TEXCOORD]);
+    
+    // activate fourth attribute on gpu - tangents
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, model::TANGENT.components, model::TANGENT.type, GL_FALSE, planet_model.vertex_bytes, planet_model.offsets[model::TANGENT]);
+    
+    
 
    // generate generic buffer
   glGenBuffers(1, &planet_object.element_BO);

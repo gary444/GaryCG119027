@@ -8,6 +8,7 @@
 layout(location = 0) in vec3 in_Position;
 layout(location = 1) in vec3 in_Normal;
 layout(location = 2) in vec2 in_Texcoord;
+layout(location = 3) in vec3 in_Tangent;
 
 //Matrix Uniforms as specified with glUniformMatrix4fv
 uniform mat4 ModelMatrix;
@@ -21,6 +22,7 @@ uniform int ShaderMode;
 
 
 
+
 out vec3 pass_Normal;
 out vec3 pass_VertexViewPosition;
 out vec3 pass_LightSourceViewPosition;
@@ -28,6 +30,8 @@ out vec3 pass_diffuseColour;
 out float pass_ShaderMode;
 //assignment 4:
 out vec2 pass_Texcoord;
+//ass4 extn
+out vec3 pass_Tangent;
 
 void main(void)
 {
@@ -45,4 +49,9 @@ void main(void)
     
     //assignment4
     pass_Texcoord = in_Texcoord;
+    
+    //assignment 4 extension - multiply tangent into view space
+    pass_Tangent = vec3(vec4(in_Tangent, 1.0) * NormalMatrix);
+    
+    
 }

@@ -50,6 +50,7 @@ private:
     float randCol();
     void loadAllTextures();
     void loadTexture(std::string name, GLuint texId);
+    void loadNormalMap(GLenum targetTextureUnit);
     
     
     std::vector< float > starBuffer;
@@ -64,7 +65,7 @@ private:
     model_object orbit_object;
     model_object skybox_object;
     
-    GLuint texBufferIDs[NUM_SPHERES + 1];
+    GLuint texBufferIDs[NUM_SPHERES + 2];
     
     //bool motionOn;
     bool orbitsOn;
@@ -72,7 +73,7 @@ private:
 
     //relative earth values
   float EARTH_SIZE = 0.45f;
-  float EARTH_SPEED = 0.4f;
+  float EARTH_SPEED = 0.04f;
   float EARTH_ORBIT = EARTH_SIZE * 20 ;
 
   //planet attributes originally copied from https://nssdc.gsfc.nasa.gov/planetary/factsheet/planet_table_ratio.html
