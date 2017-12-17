@@ -74,6 +74,8 @@ private:
     GLuint rb_handle;
     GLuint drawBufferTexture;
     GLuint fbo_handle;
+    int Post_Processing_Flag = 0;
+    
     
     //bool motionOn;
     bool orbitsOn;

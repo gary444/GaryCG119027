@@ -343,6 +343,7 @@ void ApplicationSolar::upload_quad() const{
     
     glUseProgram(m_shaders.at("quad").handle);
     glUniform1i(m_shaders.at("quad").u_locs.at("TexID"), drawBufferTexture);
+    glUniform1i(m_shaders.at("quad").u_locs.at("PP_FLAG"), Post_Processing_Flag);
     
     glBindVertexArray(screenquad_object.vertex_AO);
     glDrawArrays(screenquad_object.draw_mode, 0, screenquad_object.num_elements);
@@ -674,11 +675,6 @@ void ApplicationSolar::keyCallback(int key, int scancode, int action, int mods) 
         glUniform1i(m_shaders.at("planet").u_locs.at("ShaderMode"), 2);
         
     }
-    //toggle motion with P key
-//    else if (key == GLFW_KEY_P && action != GLFW_PRESS) {
-//        motionOn = !motionOn;
-//        
-//    }
     else if (key == GLFW_KEY_O && action != GLFW_PRESS) {
         
         orbitsOn = !orbitsOn;
@@ -687,11 +683,23 @@ void ApplicationSolar::keyCallback(int key, int scancode, int action, int mods) 
         
         starsOn = !starsOn;
     }
+    //asssignment 5 - post-processing options
+    //use binary flag to pass setting to shader
+    //https://www.experts-exchange.com/articles/1842/Binary-Bit-Flags-Tutorial-and-Usage-Tips.html
     
+    else if (key == GLFW_KEY_7 && action != GLFW_PRESS){
+        Post_Processing_Flag ^= 1UL << 0;//greyscale
+    }
+    else if (key == GLFW_KEY_8 && action != GLFW_PRESS){
+        Post_Processing_Flag ^= 1UL << 1;//horizontal flip
+    }
+    else if (key == GLFW_KEY_9 && action != GLFW_PRESS){
+        Post_Processing_Flag ^= 1UL << 2;//vertical flip
+    }
+    else if (key == GLFW_KEY_0 && action != GLFW_PRESS){
+        Post_Processing_Flag ^= 1UL << 3;//blur
+    }
     
-
-    
-
 }
 
 //handle delta mouse movement input
@@ -760,6 +768,7 @@ void ApplicationSolar::initializeShaderPrograms() {
     m_shaders.emplace("quad", shader_program{m_resource_path + "shaders/quad.vert",
         m_resource_path + "shaders/quad.frag"});
     m_shaders.at("quad").u_locs["TexID"] = -1;
+    m_shaders.at("quad").u_locs["PP_FLAG"] = -1;
     //test
     //m_shaders.at("quad").u_locs["Color"] = -1;
     
