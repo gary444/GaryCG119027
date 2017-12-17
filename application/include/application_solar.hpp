@@ -3,6 +3,7 @@
 
 #include "application.hpp"
 #include "model.hpp"
+
 #include "structs.hpp"
 
 using namespace gl;

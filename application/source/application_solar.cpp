@@ -67,7 +67,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
     loadNormalMap(GL_TEXTURE12);
     
     //initialise frame buffers
-    //setupOffscreenRendering();
+    setupOffscreenRendering();
     
     
     //load models
@@ -97,23 +97,29 @@ void ApplicationSolar::setupOffscreenRendering(){
     GLint viewportData[4];
     glGetIntegerv(GL_VIEWPORT, viewportData);
     
-    
+    //test
+    //load texture from file for this planet
+    pixel_data newTexture = texture_loader::file(m_resource_path + "textures/smallgreen.png");
     
     //create texture
     //GLuint drawBufferTexture;
     //switch active texture
-    //glActiveTexture(GL_TEXTURE13);//needed?
+    glActiveTexture(GL_TEXTURE13);
     //generate texture object
     glGenTextures(1, &drawBufferTexture);
     //bind texture to 2D texture binding point of active unit
     glBindTexture(GL_TEXTURE_2D, drawBufferTexture);
     
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, viewportData[2], viewportData[3], 0,
-                 GL_RGB, GL_FLOAT, 0);
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, viewportData[2], viewportData[3], 0,
+     //            GL_RGB, GL_FLOAT, 0);
     //define sampling parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei)newTexture.width, (GLsizei)newTexture.height, 0, newTexture.channels, newTexture.channel_type, newTexture.ptr());
 
+    
+    /*
     
     //create render buffer (for depth buffer)
     //GLuint rb_handle;
@@ -143,6 +149,8 @@ void ApplicationSolar::setupOffscreenRendering(){
     
     //set to render to texture (via FBO)
     //glBindFramebuffer(GL_FRAMEBUFFER, drawBufferTexture);
+     
+     */
     
     
 }
@@ -325,14 +333,9 @@ void ApplicationSolar::render() const {
 void ApplicationSolar::upload_quad() const{
     
     glUseProgram(m_shaders.at("quad").handle);
-
-    glActiveTexture(GL_TEXTURE13);
-    glUniform1i(m_shaders.at("quad").u_locs.at("Texture"), drawBufferTexture);
-    //glActiveTexture(GL_TEXTURE4);
-    //glUniform1i(m_shaders.at("quad").u_locs.at("Texture"), 4);
+    glUniform1i(m_shaders.at("quad").u_locs.at("TexID"), drawBufferTexture);
     
     glBindVertexArray(screenquad_object.vertex_AO);
-
     glDrawArrays(screenquad_object.draw_mode, 0, screenquad_object.num_elements);
  
 }
@@ -747,7 +750,9 @@ void ApplicationSolar::initializeShaderPrograms() {
     //add screen quad shader
     m_shaders.emplace("quad", shader_program{m_resource_path + "shaders/quad.vert",
         m_resource_path + "shaders/quad.frag"});
-    m_shaders.at("quad").u_locs["Texture"] = -1;
+    m_shaders.at("quad").u_locs["TexID"] = -1;
+    //test
+    m_shaders.at("quad").u_locs["Color"] = -1;
     
     
     
