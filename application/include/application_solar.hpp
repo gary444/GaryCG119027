@@ -42,15 +42,18 @@ class ApplicationSolar : public Application {
     void upload_stars() const;
     void upload_Orbits() const;
     void upload_skybox() const;
+    void upload_quad() const;
     
 private:
     void fillOrbits();
-    void buildSkybox();
+    //void buildSkybox();
     float randPos();
     float randCol();
     void loadAllTextures();
     void loadTexture(std::string name, GLuint texId);
     void loadNormalMap(GLenum targetTextureUnit);
+    void setupOffscreenRendering();
+    
     
     
     std::vector< float > starBuffer;
@@ -64,8 +67,12 @@ private:
     model_object star_object;
     model_object orbit_object;
     model_object skybox_object;
+    model_object screenquad_object;
     
     GLuint texBufferIDs[NUM_SPHERES + 2];
+    GLuint rb_handle;
+    GLuint drawBufferTexture;
+    GLuint fbo_handle;
     
     //bool motionOn;
     bool orbitsOn;
@@ -89,6 +96,15 @@ private:
 					   {"saturn",  EARTH_SIZE * 6.45f,   EARTH_SPEED * 0.9f,  EARTH_ORBIT * 4.58f,   0.05f,  -1, false , {0.741, 0.705, 0.039}},//saturn
 					   {"uranus",  EARTH_SIZE * 3.01f,   EARTH_SPEED * 0.85f, EARTH_ORBIT * 5.2f,    -0.05f,  -1, false , {0.039, 0.596, 0.741}},//uranus
 					   {"neptune",  EARTH_SIZE * 2.88f,   EARTH_SPEED * 0.8f,   EARTH_ORBIT * 6.05f,   -0.02f,  -1, false , {0.247, 0.223, 0.952}} };//neptune
+    
+    std::vector< float >  screenQuad = {-0.5, -0.5, 0.0,
+                            0.5, -0.5, 0.0,
+                            -0.5, 0.5, 0.0,
+                            0.5, 0.5, 0.0};
+    std::vector< int >  screenQuadElements = {0, 1, 2, 3};
+    
+    
+        
  
 
 

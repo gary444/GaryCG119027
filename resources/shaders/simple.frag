@@ -3,6 +3,7 @@
 //with additions from https://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_shading_model
 
 
+
 in vec3 pass_Normal;
 in vec3 pass_VertexViewPosition;
 in vec3 pass_LightSourceViewPosition;
@@ -19,6 +20,8 @@ uniform bool UseBumpMap;
 
 out vec4 out_Color;
 
+//layout(location = 0) out vec3 out_Color;
+
 float ambientK = 0.3;
 float diffuseK = 0.8;
 float specularK = 0.2;
@@ -28,6 +31,8 @@ vec3 outlineColour = vec3(0.850, 0.968, 0.956);
 
 
 void main() {
+    
+    //out_Color = vec3(1.0, 1.0, 1.0);
     
     //adjust co-ordinates to better fit over planets
     vec2 newCoord = vec2((pass_Texcoord.x * 0.25 - 0.5) * 1.0, (pass_Texcoord.y * 0.5) + 0.5);
@@ -95,6 +100,7 @@ void main() {
     
     //combine specular, diffuse and ambient
     out_Color = vec4(ambient + diffuse + specular, 1.0);
+    //out_Color = ambient + diffuse + specular;
     
     
     //cel shading=============
@@ -107,6 +113,7 @@ void main() {
         //if cos value is less than x, colour to outline colour
         if (viewAngleCosine < 0.3) {
             out_Color = vec4(outlineColour, 1.0);
+            //out_Color = outlineColour;
             
         }
         //else if pixel is not on outline....
@@ -115,6 +122,7 @@ void main() {
 
             //apply cel shading
             out_Color = ceil(out_Color * 4) / 4;
+            //out_Color = vec3(ceil(out_Color * 4) / 4);
             
         }
     }

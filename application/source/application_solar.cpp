@@ -28,11 +28,12 @@ using namespace gl;
 model star_model{};
 model planet_model{};
 model orbit_model{};
+model screenquad_model{};
 //model skybox_model{};
 
 ApplicationSolar::ApplicationSolar(std::string const& resource_path)
  :Application{resource_path}
-, planet_object{}, star_object{}, orbit_object{}, skybox_object{}
+, planet_object{}, star_object{}, orbit_object{}, skybox_object{}, screenquad_object{}
 {
     //set states
     //motionOn = true;
@@ -65,16 +66,20 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
     //load normal map
     loadNormalMap(GL_TEXTURE12);
     
+    //initialise frame buffers
+    //setupOffscreenRendering();
+    
+    
     //load models
     model planet_model = model_loader::obj(m_resource_path + "models/sphere.obj", model::NORMAL | model::TEXCOORD | model::TANGENT);
-    
     
     //star model uses 'normal' space for colour attributes - both use 3 floats
     star_model = {starBuffer, model::POSITION | model::NORMAL};
     //only use position for orbits
     orbit_model = {orbitBuffer, model::POSITION};
-    //skybox_model = {skyBoxBuffer, model::POSITION};
+    screenquad_model = {screenQuad, model::POSITION};
 
+    
     //set starting view
     m_view_transform = glm::translate(m_view_transform, glm::fvec3{ 0.0f, 0.0f, 10.0f });
     m_view_transform = glm::rotate(m_view_transform, glm::radians(-10.0f), glm::fvec3{ 1.0f, 0.0f, 0.0f });
@@ -84,6 +89,62 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
     initializeGeometry();
     initializeShaderPrograms();
   
+}
+
+void ApplicationSolar::setupOffscreenRendering(){
+    
+    //get screen size
+    GLint viewportData[4];
+    glGetIntegerv(GL_VIEWPORT, viewportData);
+    
+    
+    
+    //create texture
+    //GLuint drawBufferTexture;
+    //switch active texture
+    //glActiveTexture(GL_TEXTURE13);//needed?
+    //generate texture object
+    glGenTextures(1, &drawBufferTexture);
+    //bind texture to 2D texture binding point of active unit
+    glBindTexture(GL_TEXTURE_2D, drawBufferTexture);
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, viewportData[2], viewportData[3], 0,
+                 GL_RGB, GL_FLOAT, 0);
+    //define sampling parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    
+    //create render buffer (for depth buffer)
+    //GLuint rb_handle;
+    glGenRenderbuffers(1, &rb_handle);
+    glBindRenderbuffer(GL_RENDERBUFFER, rb_handle);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, viewportData[2], viewportData[3]);
+    
+    
+    //setup FBO
+    GLuint fbo_handle = 1;
+    glGenFramebuffers(1, &fbo_handle);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
+    //define attachments
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, drawBufferTexture, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,GL_RENDERBUFFER, rb_handle);
+    
+    //create draw buffers
+    GLenum draw_buffers[1] = {GL_COLOR_ATTACHMENT0};
+    glDrawBuffers(1, draw_buffers);
+    
+    //check validity
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE){
+        throw std::logic_error("framebuffer not correctly initialised");
+    }
+    
+    
+    //set to render to texture (via FBO)
+    //glBindFramebuffer(GL_FRAMEBUFFER, drawBufferTexture);
+    
+    
 }
 
 //loads a normal map
@@ -212,6 +273,9 @@ void ApplicationSolar::render() const {
     
     
     
+    
+    
+    
     //set background colour...hard coded to dark blue
     //glClearColor(0.031f, 0.043f, 0.231f, 1.0);
     
@@ -252,7 +316,25 @@ void ApplicationSolar::render() const {
         upload_Orbits();
     }
     
+    upload_quad();
     
+    
+}
+
+//upload screen quad for assignment 5
+void ApplicationSolar::upload_quad() const{
+    
+    glUseProgram(m_shaders.at("quad").handle);
+
+    glActiveTexture(GL_TEXTURE13);
+    glUniform1i(m_shaders.at("quad").u_locs.at("Texture"), drawBufferTexture);
+    //glActiveTexture(GL_TEXTURE4);
+    //glUniform1i(m_shaders.at("quad").u_locs.at("Texture"), 4);
+    
+    glBindVertexArray(screenquad_object.vertex_AO);
+
+    glDrawArrays(screenquad_object.draw_mode, 0, screenquad_object.num_elements);
+ 
 }
 
 //assignment 2 extension - draw planet's orbit(s)
@@ -523,6 +605,14 @@ void ApplicationSolar::updateProjection() {
     glUniformMatrix4fv(m_shaders.at("orbit").u_locs.at("ProjectionMatrix"),
                        1, GL_FALSE, glm::value_ptr(m_view_projection));
     
+    
+    //update render buffer size
+//    glBindRenderbuffer(GL_RENDERBUFFER, rb_handle);
+//    //get screen size
+//    GLint data[4];
+//    glGetIntegerv(GL_VIEWPORT, data);
+//    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, data[2], data[3]);
+    
 
 
 }
@@ -654,6 +744,11 @@ void ApplicationSolar::initializeShaderPrograms() {
     m_shaders.at("orbit").u_locs["ViewMatrix"] = -1;
     m_shaders.at("orbit").u_locs["ProjectionMatrix"] = -1;
     
+    //add screen quad shader
+    m_shaders.emplace("quad", shader_program{m_resource_path + "shaders/quad.vert",
+        m_resource_path + "shaders/quad.frag"});
+    m_shaders.at("quad").u_locs["Texture"] = -1;
+    
     
     
 }
@@ -769,6 +864,35 @@ void ApplicationSolar::initializeGeometry() {
 
     // store type of primitive to draw
     orbit_object.draw_mode = GL_LINE_LOOP;
+    
+    
+    
+    //======================================================================
+    //screen quad
+    
+    // generate vertex array object
+    glGenVertexArrays(1, &screenquad_object.vertex_AO);
+    // bind the array for attaching buffers
+    glBindVertexArray(screenquad_object.vertex_AO);
+    
+    // generate generic buffer
+    glGenBuffers(1, &screenquad_object.vertex_BO);
+    // bind this as an vertex array buffer containing all attributes
+    glBindBuffer(GL_ARRAY_BUFFER, screenquad_object.vertex_BO);
+    // configure currently bound array buffer
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * screenquad_model.data.size(), screenquad_model.data.data(), GL_STATIC_DRAW);
+    
+    // activate first attribute on gpu
+    glEnableVertexAttribArray(0);
+    // first attribute is 3 floats with no offset & stride
+    glVertexAttribPointer(0, model::POSITION.components, model::POSITION.type, GL_FALSE, screenquad_model.vertex_bytes, screenquad_model.offsets[model::POSITION]);
+    
+    
+    // transfer number of indices to model object
+    screenquad_object.num_elements = GLsizei(screenquad_model.data.size());
+    screenquad_object.draw_mode = GL_TRIANGLE_STRIP;
+    
+
     
 }
 
