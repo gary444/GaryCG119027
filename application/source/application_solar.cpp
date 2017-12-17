@@ -70,6 +70,8 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
     setupOffscreenRendering();
     
     
+    
+    
     //load models
     model planet_model = model_loader::obj(m_resource_path + "models/sphere.obj", model::NORMAL | model::TEXCOORD | model::TANGENT);
     
@@ -99,10 +101,9 @@ void ApplicationSolar::setupOffscreenRendering(){
     
     //test
     //load texture from file for this planet
-    pixel_data newTexture = texture_loader::file(m_resource_path + "textures/smallgreen.png");
+//    pixel_data newTexture = texture_loader::file(m_resource_path + "textures/smallgreen.png");
     
     //create texture
-    //GLuint drawBufferTexture;
     //switch active texture
     glActiveTexture(GL_TEXTURE13);
     //generate texture object
@@ -110,26 +111,28 @@ void ApplicationSolar::setupOffscreenRendering(){
     //bind texture to 2D texture binding point of active unit
     glBindTexture(GL_TEXTURE_2D, drawBufferTexture);
     
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, viewportData[2], viewportData[3], 0,
-     //            GL_RGB, GL_FLOAT, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, viewportData[2], viewportData[3], 0,
+                 GL_RGB, GL_FLOAT, 0);
+    
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2000, 2000, 0,
+      //           GL_RGB, GL_FLOAT, 0);
     //define sampling parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei)newTexture.width, (GLsizei)newTexture.height, 0, newTexture.channels, newTexture.channel_type, newTexture.ptr());
+    //test
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei)newTexture.width, (GLsizei)newTexture.height, 0, newTexture.channels, newTexture.channel_type, newTexture.ptr());
 
     
-    /*
+    
     
     //create render buffer (for depth buffer)
-    //GLuint rb_handle;
     glGenRenderbuffers(1, &rb_handle);
     glBindRenderbuffer(GL_RENDERBUFFER, rb_handle);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, viewportData[2], viewportData[3]);
     
     
     //setup FBO
-    GLuint fbo_handle = 1;
     glGenFramebuffers(1, &fbo_handle);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
     //define attachments
@@ -147,10 +150,9 @@ void ApplicationSolar::setupOffscreenRendering(){
     }
     
     
-    //set to render to texture (via FBO)
-    //glBindFramebuffer(GL_FRAMEBUFFER, drawBufferTexture);
+
      
-     */
+    
     
     
 }
@@ -281,7 +283,10 @@ void ApplicationSolar::render() const {
     
     
     
-    
+    //set to render to texture (via FBO)
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glViewport(0,0,1024,768);
     
     
     //set background colour...hard coded to dark blue
@@ -323,6 +328,10 @@ void ApplicationSolar::render() const {
     if (orbitsOn) {
         upload_Orbits();
     }
+    
+    //set to render to texture (via FBO)
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //glViewport(0,0,1024,768);
     
     upload_quad();
     
@@ -752,7 +761,7 @@ void ApplicationSolar::initializeShaderPrograms() {
         m_resource_path + "shaders/quad.frag"});
     m_shaders.at("quad").u_locs["TexID"] = -1;
     //test
-    m_shaders.at("quad").u_locs["Color"] = -1;
+    //m_shaders.at("quad").u_locs["Color"] = -1;
     
     
     

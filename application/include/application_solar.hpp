@@ -98,11 +98,11 @@ private:
 					   {"uranus",  EARTH_SIZE * 3.01f,   EARTH_SPEED * 0.85f, EARTH_ORBIT * 5.2f,    -0.05f,  -1, false , {0.039, 0.596, 0.741}},//uranus
 					   {"neptune",  EARTH_SIZE * 2.88f,   EARTH_SPEED * 0.8f,   EARTH_ORBIT * 6.05f,   -0.02f,  -1, false , {0.247, 0.223, 0.952}} };//neptune
     
-    std::vector< float >  screenQuad = {-0.5, -0.5, 0.0,
-                            0.5, -0.5, 0.0,
-                            -0.5, 0.5, 0.0,
-                            0.5, 0.5, 0.0};
-    std::vector< int >  screenQuadElements = {0, 1, 2, 3};
+    std::vector< float >  screenQuad = {-1.0, -1.0, 0.0,
+                            1.0, -1.0, 0.0,
+                            -1.0, 1.0, 0.0,
+                            1.0, 1.0, 0.0};
+    //std::vector< int >  screenQuadElements = {0, 1, 2, 3};
     
     
         
