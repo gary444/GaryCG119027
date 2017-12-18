@@ -42,13 +42,7 @@ void main() {
     
     out_Color = texture(TexID, newCoord);
     
-    //greyscale
-    if ( (PP_FLAG & GREYSCALE ) == GREYSCALE ) {
-        //calculate luminescance preserving grey value and assign to output
-        vec3 greyVec = vec3(0.2126, 0.7152, 0.0722) * vec3(out_Color);
-        float grey = dot(greyVec, vec3(1.0, 1.0, 1.0));
-        out_Color = vec4(grey, grey, grey, 1.0);
-    }
+    
     
     //blurring
     if ( (PP_FLAG & BLUR ) == BLUR ) {
@@ -56,7 +50,7 @@ void main() {
         //calc pixel size as a vec2 (x and y)
         vec2 pixelSize = newCoord / vec2(gl_FragCoord);
         
-        //sample colour with adjusted co-ordinates for 9 pixel kernel
+        //sample colour with predefined and adjusted co-ordinates for 9 pixel kernel
         vec3 sumColour = vec3(out_Color) * 0.25;//centre
         
         sumColour += 0.125 * vec3(texture(TexID, vec2(newCoord.x - pixelSize.x, newCoord.y)));//left
@@ -74,6 +68,14 @@ void main() {
         //sum together and output
         out_Color = vec4(sumColour, 1.0);
         
+    }
+    
+    //greyscale
+    if ( (PP_FLAG & GREYSCALE ) == GREYSCALE ) {
+        //calculate luminescance preserving grey value and assign to output
+        vec3 greyVec = vec3(0.2126, 0.7152, 0.0722) * vec3(out_Color);
+        float grey = dot(greyVec, vec3(1.0, 1.0, 1.0));
+        out_Color = vec4(grey, grey, grey, 1.0);
     }
     
     
