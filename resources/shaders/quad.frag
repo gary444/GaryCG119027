@@ -40,7 +40,7 @@ void main() {
     }
     
     
-    out_Color = vec4(texture(TexID, newCoord));
+    out_Color = texture(TexID, newCoord);
     
     //greyscale
     if ( (PP_FLAG & GREYSCALE ) == GREYSCALE ) {
@@ -54,10 +54,25 @@ void main() {
     if ( (PP_FLAG & BLUR ) == BLUR ) {
         
         //calc pixel size as a vec2 (x and y)
+        vec2 pixelSize = newCoord / vec2(gl_FragCoord);
         
         //sample colour with adjusted co-ordinates for 9 pixel kernel
+        vec3 sumColour = vec3(out_Color) * 0.25;//centre
+        
+        sumColour += 0.125 * vec3(texture(TexID, vec2(newCoord.x - pixelSize.x, newCoord.y)));//left
+        sumColour += 0.125 * vec3(texture(TexID, vec2(newCoord.x + pixelSize.x, newCoord.y)));//right
+        sumColour += 0.125 * vec3(texture(TexID, vec2(newCoord.x, newCoord.y + pixelSize.y)));//top
+        sumColour += 0.125 * vec3(texture(TexID, vec2(newCoord.x, newCoord.y - pixelSize.y)));//bottom
+        
+        
+        sumColour += 0.0625 * vec3(texture(TexID, vec2(newCoord.x - pixelSize.x, newCoord.y + pixelSize.y)));//left top
+        sumColour += 0.0625 * vec3(texture(TexID, vec2(newCoord.x - pixelSize.x, newCoord.y - pixelSize.y)));//left bottom
+        sumColour += 0.0625 * vec3(texture(TexID, vec2(newCoord.x + pixelSize.x, newCoord.y + pixelSize.y)));//right top
+        sumColour += 0.0625 * vec3(texture(TexID, vec2(newCoord.x + pixelSize.x, newCoord.y - pixelSize.y)));//right bottom
+        
         
         //sum together and output
+        out_Color = vec4(sumColour, 1.0);
         
     }
     
