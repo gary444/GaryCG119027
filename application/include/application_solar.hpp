@@ -47,6 +47,7 @@ class ApplicationSolar : public Application {
     
 private:
     void fillOrbits();
+    void fillStars();
     //void buildSkybox();
     float randPos();
     float randCol();
@@ -104,7 +105,6 @@ private:
                             1.0, -1.0, 0.0,
                             -1.0, 1.0, 0.0,
                             1.0, 1.0, 0.0};
-    //std::vector< int >  screenQuadElements = {0, 1, 2, 3};
     
     
         

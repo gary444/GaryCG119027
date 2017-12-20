@@ -53,16 +53,18 @@ void main() {
         //sample colour with predefined and adjusted co-ordinates for 9 pixel kernel
         vec3 sumColour = vec3(out_Color) * 0.25;//centre
         
-        sumColour += 0.125 * vec3(texture(TexID, vec2(newCoord.x - pixelSize.x, newCoord.y)));//left
-        sumColour += 0.125 * vec3(texture(TexID, vec2(newCoord.x + pixelSize.x, newCoord.y)));//right
-        sumColour += 0.125 * vec3(texture(TexID, vec2(newCoord.x, newCoord.y + pixelSize.y)));//top
-        sumColour += 0.125 * vec3(texture(TexID, vec2(newCoord.x, newCoord.y - pixelSize.y)));//bottom
+        //min(newCoord.y - pixelSize.y, 0.0)
+        
+        sumColour += 0.125 * vec3(texture(TexID, vec2(max(newCoord.x - pixelSize.x, 0.0), newCoord.y)));//left
+        sumColour += 0.125 * vec3(texture(TexID, vec2(min(newCoord.x + pixelSize.x, 1.0), newCoord.y)));//right
+        sumColour += 0.125 * vec3(texture(TexID, vec2(newCoord.x, min(newCoord.y + pixelSize.y, 1.0))));//top
+        sumColour += 0.125 * vec3(texture(TexID, vec2(newCoord.x, max(newCoord.y - pixelSize.y, 0.0))));//bottom
         
         
-        sumColour += 0.0625 * vec3(texture(TexID, vec2(newCoord.x - pixelSize.x, newCoord.y + pixelSize.y)));//left top
-        sumColour += 0.0625 * vec3(texture(TexID, vec2(newCoord.x - pixelSize.x, newCoord.y - pixelSize.y)));//left bottom
-        sumColour += 0.0625 * vec3(texture(TexID, vec2(newCoord.x + pixelSize.x, newCoord.y + pixelSize.y)));//right top
-        sumColour += 0.0625 * vec3(texture(TexID, vec2(newCoord.x + pixelSize.x, newCoord.y - pixelSize.y)));//right bottom
+        sumColour += 0.0625 * vec3(texture(TexID, vec2(max(newCoord.x - pixelSize.x, 0.0), min(newCoord.y + pixelSize.y, 1.0))));//left top
+        sumColour += 0.0625 * vec3(texture(TexID, vec2(max(newCoord.x - pixelSize.x, 0.0), max(newCoord.y - pixelSize.y, 0.0))));//left bottom
+        sumColour += 0.0625 * vec3(texture(TexID, vec2(min(newCoord.x + pixelSize.x, 1.0), min(newCoord.y + pixelSize.y, 1.0))));//right top
+        sumColour += 0.0625 * vec3(texture(TexID, vec2(min(newCoord.x + pixelSize.x, 1.0), max(newCoord.y - pixelSize.y, 0.0))));//right bottom
         
         
         //sum together and output

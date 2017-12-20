@@ -20,69 +20,53 @@ using namespace gl;
 #include <math.h>
 #include <iostream>
 
-//#define NUM_PLANETS 10
 #define NUM_STARS 1000
 #define NUM_POINTS_ON_ORBIT 100
 
-
+//model definitions
 model star_model{};
 model planet_model{};
 model orbit_model{};
 model screenquad_model{};
-//model skybox_model{};
 
 ApplicationSolar::ApplicationSolar(std::string const& resource_path)
  :Application{resource_path}
 , planet_object{}, star_object{}, orbit_object{}, skybox_object{}, screenquad_object{}
 {
     //set states
-    //motionOn = true;
     orbitsOn = true;
     starsOn = false;
     
-    
-  
-    //fill star buffer here with random position and colours
-    star_object.num_elements = NUM_STARS;
-    for (int i = 0; i < star_object.num_elements; i++){
-        
-        starBuffer.push_back(randPos());
-        starBuffer.push_back(randPos());
-        starBuffer.push_back(randPos());
-        
-        starBuffer.push_back(randCol());
-        starBuffer.push_back(randCol());
-        starBuffer.push_back(randCol());
-    }
-    
-    
+    //generate vertices information=======================================
+
+    //fill stars buffer
+    fillStars();
     //fill orbit buffer
     orbit_object.num_elements = NUM_POINTS_ON_ORBIT;
     fillOrbits();
 
+    //load textures and normal maps from files======================
+    
     //load textures
     loadAllTextures();
-    
     //load normal map
     loadNormalMap(GL_TEXTURE12);
     
-    //initialise frame buffers
+    //initialise frame buffers - assignment 5
     setupOffscreenRendering();
     
     
+    //configure models ============================================
     
-    
-    //load models
     model planet_model = model_loader::obj(m_resource_path + "models/sphere.obj", model::NORMAL | model::TEXCOORD | model::TANGENT);
-    
-    //star model uses 'normal' space for colour attributes - both use 3 floats
+    //star model uses 'normal' space for colour attributes
     star_model = {starBuffer, model::POSITION | model::NORMAL};
-    //only use position for orbits
+    //only use position for orbits and quad
     orbit_model = {orbitBuffer, model::POSITION};
     screenquad_model = {screenQuad, model::POSITION};
 
     
-    //set starting view
+    //set starting view ============================================
     m_view_transform = glm::translate(m_view_transform, glm::fvec3{ 0.0f, 0.0f, 10.0f });
     m_view_transform = glm::rotate(m_view_transform, glm::radians(-10.0f), glm::fvec3{ 1.0f, 0.0f, 0.0f });
     
@@ -99,9 +83,6 @@ void ApplicationSolar::setupOffscreenRendering(){
     GLint viewportData[4];
     glGetIntegerv(GL_VIEWPORT, viewportData);
     
-    //test
-    //load texture from file for this planet
-//    pixel_data newTexture = texture_loader::file(m_resource_path + "textures/smallgreen.png");
     
     //create texture
     //switch active texture
@@ -110,20 +91,13 @@ void ApplicationSolar::setupOffscreenRendering(){
     glGenTextures(1, &drawBufferTexture);
     //bind texture to 2D texture binding point of active unit
     glBindTexture(GL_TEXTURE_2D, drawBufferTexture);
-    
+    //add empty texture image
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, viewportData[2], viewportData[3], 0,
                  GL_RGB, GL_FLOAT, 0);
     
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2000, 2000, 0,
-      //           GL_RGB, GL_FLOAT, 0);
     //define sampling parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    
-    //test
-//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei)newTexture.width, (GLsizei)newTexture.height, 0, newTexture.channels, newTexture.channel_type, newTexture.ptr());
-
-    
     
     
     //create render buffer (for depth buffer)
@@ -148,11 +122,6 @@ void ApplicationSolar::setupOffscreenRendering(){
     if (status != GL_FRAMEBUFFER_COMPLETE){
         throw std::logic_error("framebuffer not correctly initialised");
     }
-    
-    
-
-     
-    
     
     
 }
@@ -197,26 +166,9 @@ void ApplicationSolar::loadAllTextures(){
         
     }
 
-    //load texture for skybox manually
-    newTexture = texture_loader::file(m_resource_path + "textures/stars.png");
-    
-    //set ID
-    texBufferIDs[i + 1] = (GLuint)i + 1;
-    
-    //switch active texture
-    glActiveTexture((GLenum) (GL_TEXTURE10));
-    //generate texture object
-    glGenTextures(1, &texBufferIDs[i + 1]);
-    //bind texture to 2D texture binding point of active unit
-    glBindTexture(GL_TEXTURE_2D, texBufferIDs[i + 1]);
-    
-    //define sampling parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    //define texture data and texture format
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei)newTexture.width, (GLsizei)newTexture.height, 0, newTexture.channels, newTexture.channel_type, newTexture.ptr());
-    
+    //starscape texture from https://tylercreatesworlds.deviantart.com/art/The-Candle-s-Wick-383265630
+    loadTexture("stars_a", i);
+
     
 }
 
@@ -241,7 +193,9 @@ void ApplicationSolar::loadTexture(std::string name, GLuint texId){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
     //define texture data and texture format
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei)newTexture.width, (GLsizei)newTexture.height, 0, newTexture.channels, newTexture.channel_type, newTexture.ptr());
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei)newTexture.width, (GLsizei)newTexture.height, 0, newTexture.channels, newTexture.channel_type, newTexture.ptr());
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, newTexture.width, newTexture.height, 0, newTexture.channels, newTexture.channel_type, newTexture.ptr());
     
 }
 
@@ -279,6 +233,23 @@ void ApplicationSolar::fillOrbits(){
 }
 
 
+void ApplicationSolar::fillStars(){
+    
+    //fill star buffer here with random position and colours
+    star_object.num_elements = NUM_STARS;
+    for (int i = 0; i < star_object.num_elements; i++){
+        
+        starBuffer.push_back(randPos());
+        starBuffer.push_back(randPos());
+        starBuffer.push_back(randPos());
+        
+        starBuffer.push_back(randCol());
+        starBuffer.push_back(randCol());
+        starBuffer.push_back(randCol());
+    }
+}
+
+
 void ApplicationSolar::render() const {
     
     
@@ -286,11 +257,7 @@ void ApplicationSolar::render() const {
     //set to render to texture (via FBO)
     glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glViewport(0,0,1024,768);
     
-    
-    //set background colour...hard coded to dark blue
-    //glClearColor(0.031f, 0.043f, 0.231f, 1.0);
     
     //==================================================================
     //planets
@@ -329,9 +296,12 @@ void ApplicationSolar::render() const {
         upload_Orbits();
     }
     
+    
+    //==================================================================
+    //screen quad
+    
     //set to render to texture (via FBO)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    //glViewport(0,0,1024,768);
     
     upload_quad();
     
@@ -371,7 +341,6 @@ void ApplicationSolar::upload_Orbits() const{
             glUniformMatrix4fv(m_shaders.at("orbit").u_locs.at("ModelMatrix"),
                                1, GL_FALSE, glm::value_ptr(glm::fmat4{}));
         
-        
             //draw orbit
             glDrawArrays(orbit_object.draw_mode, i * orbit_object.num_elements, orbit_object.num_elements);
             
@@ -383,17 +352,11 @@ void ApplicationSolar::upload_Orbits() const{
                 //create rotated and translated matrix with planet information
                 glm::fmat4 m_earth;
                 
-                
-               
                 m_earth = glm::rotate(glm::fmat4{}, float(glfwGetTime() * earth.rotationSpeed), glm::fvec3{ 0.0f, 1.0f, 0.0f });
                 m_earth = glm::translate(m_earth, glm::fvec3{ 0.0f, 0.0f, earth.distToOrigin });
                 m_earth = glm::rotate(m_earth, float (M_PI / 2.f), glm::fvec3{ 0.0f, 0.0f, 1.0f });
-                
-                
-                
                 glUniformMatrix4fv(m_shaders.at("orbit").u_locs.at("ModelMatrix"),
                                    1, GL_FALSE, glm::value_ptr(m_earth));
-
                 
                 //draw orbit
                 glDrawArrays(orbit_object.draw_mode, earth.hasMoonAtIndex * 100, orbit_object.num_elements);
@@ -444,14 +407,9 @@ void ApplicationSolar::upload_skybox() const{
     glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("NormalMatrix"),
                        1, GL_FALSE, glm::value_ptr(normal_matrix));
     
-    
-    //tex index is last member of texIds list
-    GLuint textureIndex = texBufferIDs[sizeof(planets) / sizeof(planets[0])];
-    
-    glActiveTexture(GL_TEXTURE10);
-    //glActiveTexture((GLenum)(GL_TEXTURE0 + textureIndex));
-    //glBindTexture(GL_TEXTURE_2D, texBufferIDs[planetIndex]);
-    glUniform1i(m_shaders.at("planet").u_locs.at("ColourTex"), 10);
+
+    GLuint textureIndex = 10;
+    glUniform1i(m_shaders.at("planet").u_locs.at("ColourTex"), textureIndex);
     
     // bind the VAO to draw
     glBindVertexArray(planet_object.vertex_AO);
@@ -620,20 +578,19 @@ void ApplicationSolar::updateProjection() {
     
     
     //update render buffer size
-//    glBindRenderbuffer(GL_RENDERBUFFER, rb_handle);
-//    //get screen size
-//    GLint data[4];
-//    glGetIntegerv(GL_VIEWPORT, data);
-//    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, data[2], data[3]);
-    
-
+    glBindRenderbuffer(GL_RENDERBUFFER, rb_handle);
+    //get screen size
+    GLint viewportData[4];
+    glGetIntegerv(GL_VIEWPORT, viewportData);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, viewportData[2], viewportData[3]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, viewportData[2], viewportData[3], 0,
+                 GL_RGB, GL_FLOAT, 0);
 
 }
 
 // update uniform locations
 void ApplicationSolar::uploadUniforms() {
   updateUniformLocations();
-  
   
   updateView();
   updateProjection();
@@ -769,8 +726,6 @@ void ApplicationSolar::initializeShaderPrograms() {
         m_resource_path + "shaders/quad.frag"});
     m_shaders.at("quad").u_locs["TexID"] = -1;
     m_shaders.at("quad").u_locs["PP_FLAG"] = -1;
-    //test
-    //m_shaders.at("quad").u_locs["Color"] = -1;
     
     
     
@@ -958,9 +913,20 @@ ApplicationSolar::~ApplicationSolar() {
     glDeleteBuffers(1, &star_object.vertex_BO);
     glDeleteVertexArrays(1, &star_object.vertex_AO);
     
-    //delete star buffers
+    //delete orbit buffers
     glDeleteBuffers(1, &orbit_object.vertex_BO);
     glDeleteVertexArrays(1, &orbit_object.vertex_AO);
+    
+    //delete quad buffers
+    glDeleteBuffers(1, &screenquad_object.vertex_BO);
+    glDeleteVertexArrays(1, &screenquad_object.vertex_AO);
+    
+    //delete render buffer
+    glDeleteRenderbuffers(1, &rb_handle);
+    //delete framebuffer
+    glDeleteFramebuffers(1, &fbo_handle);
+    
+    
     
 }
 
