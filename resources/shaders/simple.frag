@@ -4,6 +4,7 @@
 
 
 
+
 in vec3 pass_Normal;
 in vec3 pass_VertexViewPosition;
 in vec3 pass_LightSourceViewPosition;
@@ -58,7 +59,7 @@ void main() {
         vec3 bitangent = cross(normal, tangent);
         //create matrix
         mat3 tangentMatrix = transpose(mat3(tangent,bitangent,normal));
-        bumpyNormal = bumpyNormal * tangentMatrix;
+        bumpyNormal = tangentMatrix * bumpyNormal;
         
         normal = normalize(bumpyNormal);
         

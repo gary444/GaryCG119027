@@ -4,11 +4,15 @@
 layout(location = 0) in vec3 in_Position;
 layout(location = 1) in vec3 in_Colour;
 
+
+layout (std140) uniform CameraBlock {
+    mat4 ViewMatrix;
+    mat4 ProjectionMatrix;
+};
+
 //Matrix Uniforms as specified with glUniformMatrix4fv
-//uniform mat4 ModelMatrix;
-uniform mat4 ViewMatrix;
-uniform mat4 ProjectionMatrix;
-//uniform mat4 NormalMatrix;
+//uniform mat4 ViewMatrix;
+//uniform mat4 ProjectionMatrix;
 
 out vec3 pass_Colour;
 

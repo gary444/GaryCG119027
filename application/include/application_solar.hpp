@@ -55,6 +55,7 @@ private:
     void loadTexture(std::string name, GLuint texId);
     void loadNormalMap(GLenum targetTextureUnit);
     void setupOffscreenRendering();
+    void createCameraBuffer();
     
     
     
@@ -75,7 +76,12 @@ private:
     GLuint rb_handle;
     GLuint drawBufferTexture;
     GLuint fbo_handle;
+    GLuint ubo_handle;
+    
     int Post_Processing_Flag = 0;
+    
+    //ass 6
+    camera_buffer CameraBuffer;
     
     
     //bool motionOn;

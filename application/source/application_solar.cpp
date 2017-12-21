@@ -31,11 +31,11 @@ model screenquad_model{};
 
 ApplicationSolar::ApplicationSolar(std::string const& resource_path)
  :Application{resource_path}
-, planet_object{}, star_object{}, orbit_object{}, skybox_object{}, screenquad_object{}
+, planet_object{}, star_object{}, orbit_object{}, skybox_object{}, screenquad_object{}, CameraBuffer{}
 {
     //set states
     orbitsOn = true;
-    starsOn = false;
+    starsOn = true;
     
     //generate vertices information=======================================
 
@@ -74,7 +74,22 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
     //initialisations
     initializeGeometry();
     initializeShaderPrograms();
+    
+    createCameraBuffer();
   
+}
+
+
+void ApplicationSolar::createCameraBuffer(){
+    
+    //create uniform buffer
+    ubo_handle = 0;
+    glGenBuffers(1, &ubo_handle);
+    //bind to generic and indexed bind points
+    glBindBufferBase(GL_UNIFORM_BUFFER, 4, ubo_handle);
+    //set size and usage
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(CameraBuffer), &CameraBuffer, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void ApplicationSolar::setupOffscreenRendering(){
@@ -546,35 +561,40 @@ void ApplicationSolar::updateView() {
     //upload vec3 to planet shader
     glUniform3fv(m_shaders.at("planet").u_locs.at("SunPosition"), 1, glm::value_ptr(sunPos));
     
-    glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ViewMatrix"),
-                     1, GL_FALSE, glm::value_ptr(view_matrix));
+    //glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ViewMatrix"),
+      //               1, GL_FALSE, glm::value_ptr(view_matrix));
     
-    glUseProgram(m_shaders.at("star").handle);
-    glUniformMatrix4fv(m_shaders.at("star").u_locs.at("ViewMatrix"),
-                       1, GL_FALSE, glm::value_ptr(view_matrix));
+    //ass 6- update local camera buffer and upload to uniform block
+    CameraBuffer.ViewMatrix = view_matrix;
+    //update buffer data
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo_handle);
+    void* buffer_ptr = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+    std::memcpy(buffer_ptr, &CameraBuffer, sizeof(CameraBuffer));
+    glUnmapBuffer(GL_UNIFORM_BUFFER);
     
-    glUseProgram(m_shaders.at("orbit").handle);
-    glUniformMatrix4fv(m_shaders.at("orbit").u_locs.at("ViewMatrix"),
-                       1, GL_FALSE, glm::value_ptr(view_matrix));
+//    glUseProgram(m_shaders.at("star").handle);
+//    glUniformMatrix4fv(m_shaders.at("star").u_locs.at("ViewMatrix"),
+//                       1, GL_FALSE, glm::value_ptr(view_matrix));
+    
+//    glUseProgram(m_shaders.at("orbit").handle);
+//    glUniformMatrix4fv(m_shaders.at("orbit").u_locs.at("ViewMatrix"),
+//                       1, GL_FALSE, glm::value_ptr(view_matrix));
     
 
     
 }
 
 void ApplicationSolar::updateProjection() {
-  // upload matrix to gpu
     
-    glUseProgram(m_shaders.at("planet").handle);
-  glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ProjectionMatrix"),
-                     1, GL_FALSE, glm::value_ptr(m_view_projection));
     
-    glUseProgram(m_shaders.at("star").handle);
-    glUniformMatrix4fv(m_shaders.at("star").u_locs.at("ProjectionMatrix"),
-                       1, GL_FALSE, glm::value_ptr(m_view_projection));
+    //ass 6- update local camera buffer and upload to uniform block
+    CameraBuffer.ProjectionMatrix = m_view_projection;
+    //update buffer data
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo_handle);
+    void* buffer_ptr = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+    std::memcpy(buffer_ptr, &CameraBuffer, sizeof(CameraBuffer));
+    glUnmapBuffer(GL_UNIFORM_BUFFER);
     
-    glUseProgram(m_shaders.at("orbit").handle);
-    glUniformMatrix4fv(m_shaders.at("orbit").u_locs.at("ProjectionMatrix"),
-                       1, GL_FALSE, glm::value_ptr(m_view_projection));
     
     
     //update render buffer size
@@ -591,6 +611,21 @@ void ApplicationSolar::updateProjection() {
 // update uniform locations
 void ApplicationSolar::uploadUniforms() {
   updateUniformLocations();
+    
+    //query location of planet shader
+    GLuint location = glGetUniformBlockIndex(m_shaders.at("planet").handle, "CameraBlock");
+    //bind block to planet shader
+    glUniformBlockBinding(m_shaders.at("planet").handle, location, 4);
+    
+    //query location of star shader
+    location = glGetUniformBlockIndex(m_shaders.at("star").handle, "CameraBlock");
+    //bind block to star shader
+    glUniformBlockBinding(m_shaders.at("star").handle, location, 4);
+    
+    //query location of orbit shader
+    location = glGetUniformBlockIndex(m_shaders.at("orbit").handle, "CameraBlock");
+    //bind block to orbit shader
+    glUniformBlockBinding(m_shaders.at("orbit").handle, location, 4);
   
   updateView();
   updateProjection();
@@ -696,8 +731,6 @@ void ApplicationSolar::initializeShaderPrograms() {
     // request uniform locations for shader program
     m_shaders.at("planet").u_locs["NormalMatrix"] = -1;
     m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
-    m_shaders.at("planet").u_locs["ViewMatrix"] = -1;
-    m_shaders.at("planet").u_locs["ProjectionMatrix"] = -1;
     m_shaders.at("planet").u_locs["SunPosition"] = -1;
     m_shaders.at("planet").u_locs["DiffuseColour"] = -1;
     m_shaders.at("planet").u_locs["ShaderMode"] = -1;
@@ -709,17 +742,12 @@ void ApplicationSolar::initializeShaderPrograms() {
     // add star shader here
     m_shaders.emplace("star", shader_program{m_resource_path + "shaders/star.vert",
         m_resource_path + "shaders/star.frag"});
-    // request uniform locations for shader program
-    m_shaders.at("star").u_locs["ViewMatrix"] = -1;
-    m_shaders.at("star").u_locs["ProjectionMatrix"] = -1;
     
     // add orbit shader here
     m_shaders.emplace("orbit", shader_program{m_resource_path + "shaders/orbit.vert",
         m_resource_path + "shaders/orbit.frag"});
     // request uniform locations for shader program
     m_shaders.at("orbit").u_locs["ModelMatrix"] = -1;
-    m_shaders.at("orbit").u_locs["ViewMatrix"] = -1;
-    m_shaders.at("orbit").u_locs["ProjectionMatrix"] = -1;
     
     //add screen quad shader
     m_shaders.emplace("quad", shader_program{m_resource_path + "shaders/quad.vert",

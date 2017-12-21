@@ -70,6 +70,13 @@ struct star_model {
     
 };
 
+struct camera_buffer {
+    glm::mat4 ViewMatrix;
+    glm::mat4 ProjectionMatrix;
+};
+
+
+
 
 
 
