@@ -32,41 +32,41 @@ vec3 outlineColour = vec3(0.850, 0.968, 0.956);
 void main() {
     
     
+    
     //adjust co-ordinates to better fit over planets
     //something weird going on with texture mapping...
     float y = (pass_Texcoord.y + 1.0) * 0.5;
     float x = (pass_Texcoord.x + 1.0) * 0.25;
     vec2 newCoord = vec2(x, y);
-    
-    vec3 baseColour = vec3(texture(ColourTex, newCoord));
+//
+    vec4 colour = texture(ColourTex, newCoord);
     //vec3 baseColour = pass_diffuseColour;
     
     //assignment4 extn--------------------------------------------------
     //normal mapping
     
-    vec3 normal;
+    
+    
+    vec3 normal = normalize(pass_Normal);
     
     if (UseBumpMap) {
         
-        vec3 bumpyNormal = normalize(vec3(texture(NormalMapIndex, newCoord)));
+        vec3 bumpyNormal = normalize(vec3(texture(NormalMapIndex, pass_Texcoord)));
         //translate to tangent space by scaling
-        bumpyNormal = vec3(bumpyNormal.x * 2.0 - 1.0, bumpyNormal.y * 2.0 - 1.0, bumpyNormal.z);
-        
-        normal = normalize(pass_Normal);
+        bumpyNormal = vec3((bumpyNormal.x - 0.5) * 2.0, (bumpyNormal.y - 0.5) * 2.0, bumpyNormal.z);
+
         vec3 tangent = normalize(pass_Tangent);
-        
+
         //calculate bitangent using cross product of N and T
         vec3 bitangent = cross(normal, tangent);
         //create matrix
         mat3 tangentMatrix = transpose(mat3(tangent,bitangent,normal));
         bumpyNormal = tangentMatrix * bumpyNormal;
-        
+
         normal = normalize(bumpyNormal);
         
     }
-    else {
-        normal = normalize(pass_Normal);
-    }
+    
     
     
     
@@ -75,25 +75,33 @@ void main() {
     
     //create vector for dorection of 'light' - from origin to vertex positions in view space
     vec3 lightDir = normalize(pass_LightSourceViewPosition - pass_VertexViewPosition);
+    vec3 viewDir = normalize(-pass_VertexViewPosition);
+    
+    vec3 baseColor = vec3(colour);
     
     //calculate ambient light
-    vec3 ambient = ambientK * baseColour;
+    vec3 ambient = ambientK * baseColor;
+    
+    
     
     //calculate diffuse light
     //lambertian is cos of angle between light and normal
     float lambertian = max(dot(lightDir, normal), 0.0);
-    vec3 diffuse = lambertian * baseColour * diffuseK;
+    vec3 diffuse = lambertian * baseColor * diffuseK;
     
-    vec3 viewDir = normalize(-pass_VertexViewPosition);
+    
     
     //specular
     float specularIntensity = 0.0;
-    if (lambertian > 0.0) {
-        
-        vec3 halfwayVector = normalize(viewDir + lightDir);
-        float specAngle = max(dot(halfwayVector, normal), 0.0);
-        specularIntensity = pow(specAngle, glossiness);
-    }
+//    if (lambertian > 0.0) {
+//
+//
+//    }
+    
+    vec3 halfwayVector = normalize(viewDir + lightDir);
+    float specAngle = max(dot(halfwayVector, normal), 0.0);
+    specularIntensity = pow(specAngle, glossiness);
+    
     vec3 specular = specularK * specularColour * specularIntensity;
     
     //combine specular, diffuse and ambient
@@ -122,6 +130,8 @@ void main() {
         }
     }
     
+    
+    //out_Color = vec4(1.0, 1.0, 1.0, 1.0);
 }
 
 

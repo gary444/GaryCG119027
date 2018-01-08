@@ -48,6 +48,7 @@ class ApplicationSolar : public Application {
 private:
     void fillOrbits();
     void fillStars();
+//    void fillLights();
     //void buildSkybox();
     float randPos();
     float randCol();
@@ -62,6 +63,8 @@ private:
     std::vector< float > starBuffer;
     std::vector< float > orbitBuffer;
     std::vector< float > skyBoxBuffer;
+    //ass 6 bonus
+//    std::vector<light> lights;
     
     
     

@@ -75,6 +75,12 @@ struct camera_buffer {
     glm::mat4 ProjectionMatrix;
 };
 
+//struct light {
+//    glm::vec3 position;
+//    glm::vec3 color;
+//    glm::vec3 radius;
+//};
+
 
 
 

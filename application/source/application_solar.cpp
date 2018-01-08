@@ -22,6 +22,7 @@ using namespace gl;
 
 #define NUM_STARS 1000
 #define NUM_POINTS_ON_ORBIT 100
+#define NUM_LIGHTS 7
 
 //model definitions
 model star_model{};
@@ -263,6 +264,28 @@ void ApplicationSolar::fillStars(){
         starBuffer.push_back(randCol());
     }
 }
+
+//only for SSBO - not implemented as would need to upgrade
+//void ApplicationSolar::fillLights(){
+//    
+//    //fill lights with sensible values
+//    for (int i = 0; i < NUM_LIGHTS ; i++) {
+//        
+//        light NewLight;
+//        
+//        //fill position
+//        NewLight.position = glm::vec3(randPos(), randPos(), randPos());
+//        
+//        //fill colour
+//        NewLight.color = glm::vec3(randCol(), randCol(), randCol());
+//        
+//        //fill radius
+//        NewLight.radius = glm::vec3(randCol(), 0.0, 0.0);
+//        
+//        lights.push_back(NewLight);
+//    }
+//    
+//}
 
 
 void ApplicationSolar::render() const {
@@ -927,6 +950,8 @@ float ApplicationSolar::randCol(){
     float out = float(rand() % 100) / 100.0f;
     return out;
 }
+
+
 
 
 
