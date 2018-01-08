@@ -36,7 +36,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 {
     //set states
     orbitsOn = true;
-    starsOn = true;
+    starsOn = false;
     
     //generate vertices information=======================================
 
@@ -422,39 +422,32 @@ void ApplicationSolar::upload_stars() const{
     // draw bound vertex array using bound shader
     glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
     
-    
 }
 
 //render skybox - use planet model
 void ApplicationSolar::upload_skybox() const{
     
-    glUseProgram(m_shaders.at("planet").handle);
     
-    // use rotation speed and planet skew to create planet's orbit
-    glm::fmat4 model_matrix;
+    glUseProgram(m_shaders.at("skybox").handle);
+    glDepthMask(0);
     
-    // scale planet according to planet size
+    // scale skybox
     float skyboxSize = 80.f;
+    glm::fmat4 model_matrix;
     model_matrix = glm::scale(model_matrix, glm::fvec3{skyboxSize, skyboxSize, skyboxSize});
     
-    glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ModelMatrix"),
+    glUniformMatrix4fv(m_shaders.at("skybox").u_locs.at("ModelMatrix"),
                        1, GL_FALSE, glm::value_ptr(model_matrix));
-    
-    //extra matrix for normal transformation to keep them orthogonal to surface
-    glm::fmat4 normal_matrix = glm::inverseTranspose(glm::inverse(m_view_transform) * model_matrix);
-    glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("NormalMatrix"),
-                       1, GL_FALSE, glm::value_ptr(normal_matrix));
-    
-
+ 
     GLuint textureIndex = 10;
-    glUniform1i(m_shaders.at("planet").u_locs.at("ColourTex"), textureIndex);
+    glUniform1i(m_shaders.at("skybox").u_locs.at("ColourTex"), textureIndex);
     
     // bind the VAO to draw
     glBindVertexArray(planet_object.vertex_AO);
-    
     // draw bound vertex array using bound shader
     glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
     
+    glDepthMask(1);
     
 }
 
@@ -641,6 +634,11 @@ void ApplicationSolar::uploadUniforms() {
     location = glGetUniformBlockIndex(m_shaders.at("orbit").handle, "CameraBlock");
     //bind block to orbit shader
     glUniformBlockBinding(m_shaders.at("orbit").handle, location, 4);
+    
+    //query location of skybox shader
+    location = glGetUniformBlockIndex(m_shaders.at("skybox").handle, "CameraBlock");
+    //bind block to orbit shader
+    glUniformBlockBinding(m_shaders.at("skybox").handle, location, 4);
   
   updateView();
   updateProjection();
@@ -769,6 +767,12 @@ void ApplicationSolar::initializeShaderPrograms() {
         m_resource_path + "shaders/quad.frag"});
     m_shaders.at("quad").u_locs["TexID"] = -1;
     m_shaders.at("quad").u_locs["PP_FLAG"] = -1;
+    
+    //add skybox shader
+    m_shaders.emplace("skybox", shader_program{m_resource_path + "shaders/skybox.vert",
+        m_resource_path + "shaders/skybox.frag"});
+    m_shaders.at("skybox").u_locs["ModelMatrix"] = -1;
+    m_shaders.at("skybox").u_locs["ColourTex"] = -1;
     
     
     
