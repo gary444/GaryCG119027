@@ -80,7 +80,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
   
 }
 
-
+//assignment 6
 void ApplicationSolar::createCameraBuffer(){
     
     //create uniform buffer
@@ -574,18 +574,15 @@ void ApplicationSolar::updateView() {
     // vertices are transformed in camera space, so camera transform must be inverted
     glm::fmat4 view_matrix = glm::inverse(m_view_transform);
     
-    glUseProgram(m_shaders.at("planet").handle);
-    
     //added for assignment 3 - upload sun's position to planet shader
+    glUseProgram(m_shaders.at("planet").handle);
     //create vec 4 of origin
     glm::vec4 origin(0.0f, 0.0f, 0.0f, 1.0f);
     //multiply by view matrx, cast to vec3
     glm::vec3 sunPos(view_matrix * origin);
     //upload vec3 to planet shader
     glUniform3fv(m_shaders.at("planet").u_locs.at("SunPosition"), 1, glm::value_ptr(sunPos));
-    
-    //glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ViewMatrix"),
-      //               1, GL_FALSE, glm::value_ptr(view_matrix));
+ 
     
     //ass 6- update local camera buffer and upload to uniform block
     CameraBuffer.ViewMatrix = view_matrix;
@@ -595,13 +592,7 @@ void ApplicationSolar::updateView() {
     std::memcpy(buffer_ptr, &CameraBuffer, sizeof(CameraBuffer));
     glUnmapBuffer(GL_UNIFORM_BUFFER);
     
-//    glUseProgram(m_shaders.at("star").handle);
-//    glUniformMatrix4fv(m_shaders.at("star").u_locs.at("ViewMatrix"),
-//                       1, GL_FALSE, glm::value_ptr(view_matrix));
-    
-//    glUseProgram(m_shaders.at("orbit").handle);
-//    glUniformMatrix4fv(m_shaders.at("orbit").u_locs.at("ViewMatrix"),
-//                       1, GL_FALSE, glm::value_ptr(view_matrix));
+
     
 
     
@@ -635,6 +626,7 @@ void ApplicationSolar::updateProjection() {
 void ApplicationSolar::uploadUniforms() {
   updateUniformLocations();
     
+    //assignment 6 - camera buffer creation
     //query location of planet shader
     GLuint location = glGetUniformBlockIndex(m_shaders.at("planet").handle, "CameraBlock");
     //bind block to planet shader

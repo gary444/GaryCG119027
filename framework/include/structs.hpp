@@ -60,7 +60,6 @@ struct planet {
 	int hasMoonAtIndex;
 	bool isMoon;
     glm::vec3 RGBColour;
-    //pixel_data texture;
 };
 
 struct star_model {
@@ -75,11 +74,6 @@ struct camera_buffer {
     glm::mat4 ProjectionMatrix;
 };
 
-//struct light {
-//    glm::vec3 position;
-//    glm::vec3 color;
-//    glm::vec3 radius;
-//};
 
 
 
